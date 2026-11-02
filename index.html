@@ -784,14 +784,19 @@ function pickable(i){const t=G.s.t[i];return t.length>0&&!isDone(t,CAP)&&!TUBES[
 function allows(i,j){if(!G.script||G.step>=G.script.length)return true;const [a,b]=G.script[G.step];return i===a&&(j===undefined||j===b);}
 function nope(i,why){if(i>=0){TUBES[i].shakeT=now();kick(400);}sfx.nope();if(why&&G.L<=4)toast(why,1400);}
 function whyNot(i,j){const a=G.s.t[i],b=G.s.t[j];if(b.length>=CAP)return'这个瓶子满了';if(b.length&&topOf(b)!==topOf(a))return'颜色不一样，倒不进去';return'';}
-// 爽玩：挑一个最好的目标瓶。优先能凑满一瓶、倒在同色上；倒完还能解的优先
+// 爽玩：挑一个最好的目标瓶。凑满一瓶 > 倒进同色单色瓶 > 整段倒到同色上 > 倒进空瓶 > 只倒进一部分（会把一段拆开）；
+// 倒完回到走过的局面排最后，免得两个瓶子来回倒；倒完还能解的优先
 function casualTarget(i){
   const s=G.s,a=s.t[i];if(!a.length||isDone(a,CAP))return-1;
-  const run=runOf(a),mono=isMono(a),c=[];
+  const run=runOf(a),mono=isMono(a),c=[],seen=new Set(G.hist.map(h=>keyOf(h.s)));
   for(let j=0;j<s.t.length;j++){
     if(!canPour(s,i,j)||TUBES[j].busy)continue;const b=s.t[j];let sc;
-    if(!b.length){if(mono)continue;sc=100-j*.01;}
-    else{const amt=pourAmt(s,i,j);sc=(mono&&!isMono(b)?200:500)+(amt===run?60:0)+(isMono(b)?120:0)+(b.length+amt===CAP&&isMono(b)?1000:0)+b.length*5;}
+    if(!b.length){if(mono)continue;sc=400-j*.01;}
+    else{const amt=pourAmt(s,i,j),bm=isMono(b);
+      if(bm)sc=b.length+amt===CAP?2000:1000+b.length*5;
+      else if(mono)sc=amt===run?150:20;
+      else sc=amt===run?600+b.length*5:50;}
+    if(seen.has(keyOf(applyPour(s,i,j))))sc-=5000;
     c.push({j,sc});
   }
   c.sort((x,y)=>y.sc-x.sc);
@@ -800,9 +805,9 @@ function casualTarget(i){
 }
 // 点的是没法倒出去的瓶子：找一个能倒进它的
 function casualSource(j){
-  const s=G.s,b=s.t[j];if(!b.length||b.length>=CAP)return-1;let best=-1,bs=-1;
+  const s=G.s,b=s.t[j];if(!b.length||b.length>=CAP)return-1;let best=-1,bs=-1e9;const seen=new Set(G.hist.map(h=>keyOf(h.s)));
   for(let k=0;k<s.t.length;k++){if(!canPour(s,k,j)||TUBES[k].busy)continue;const amt=pourAmt(s,k,j);
-    const sc=(b.length+amt===CAP&&isMono(b)?1000:0)+(amt===runOf(s.t[k])?100:0)+amt;if(sc>bs){bs=sc;best=k;}}
+    const sc=(b.length+amt===CAP&&isMono(b)?1000:0)+(amt===runOf(s.t[k])?100:0)+amt-(seen.has(keyOf(applyPour(s,k,j)))?5000:0);if(sc>bs){bs=sc;best=k;}}
   return best;
 }
 function tap(i){
