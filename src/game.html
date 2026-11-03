@@ -70,7 +70,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 .btn.ghost{background:none}
 .overlay{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;
   background:rgba(6,12,22,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-#home{background:radial-gradient(120% 80% at 50% 0%,#1d3a57 0%,#0c1626 75%);align-items:stretch}
+#home{background:radial-gradient(120% 80% at 50% 0%,var(--bg1) 0%,var(--bg0) 75%);align-items:stretch}
 .panel{width:100%;max-width:420px;border-radius:24px;background:var(--panel);border:1px solid var(--line);padding:22px 18px;
   box-shadow:0 20px 50px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.2,.9,.3,1.2)}
 @keyframes pop{from{transform:scale(.92);opacity:0}}
@@ -106,6 +106,27 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 .opts label{display:flex;align-items:center;gap:6px}
 .opts input{width:18px;height:18px;accent-color:var(--accent)}
 .ver{text-align:center;color:var(--ink2);font-size:11px;opacity:.6;margin:0}
+.pill{position:relative;padding:4px 12px;border-radius:99px;background:rgba(246,200,90,.14);border:1px solid rgba(246,200,90,.45);color:var(--gold-hi);font-size:14px}
+.pill b{font-variant-numeric:tabular-nums}
+.pill.new::after{content:"";position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:99px;background:var(--red)}
+#coll,#share{z-index:45}
+.coll{display:flex;flex-direction:column;gap:10px;max-height:calc(100% - 8px);overflow:auto}
+.coll header{display:flex;align-items:baseline;justify-content:space-between}
+.coll h2{margin:0;font-size:22px}
+.coll h3{margin:4px 0 0;font-size:14px;color:var(--ink2);font-weight:600}
+.coll header span{color:var(--gold-hi);font-weight:700}
+.items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.item{border-radius:14px;padding:8px 6px 6px;background:rgba(255,255,255,.05);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:5px;font-size:13px}
+.item.on{border-color:var(--gold);background:rgba(246,200,90,.1)}
+.item[disabled]{opacity:.45}
+.item small{font-size:11px;color:var(--gold-hi);height:14px}
+.sw{width:100%;height:44px;border-radius:10px}
+.mt{width:22px;height:46px;border-radius:4px 4px 11px 11px;border:2px solid rgba(225,238,255,.7);overflow:hidden;display:flex;flex-direction:column-reverse}
+.mt i{flex:none;height:12px}
+.share{text-align:center;display:flex;flex-direction:column;gap:10px;max-height:calc(100% - 8px)}
+.share img{width:100%;min-height:0;object-fit:contain;border-radius:14px;flex:1}
+.share p{margin:0;color:var(--ink2);font-size:13px}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit}
 .win{text-align:center}
 .stars{display:flex;justify-content:center;gap:6px;margin:-4px 0 6px}
 .stars svg{width:46px;height:46px;opacity:.18;transform:scale(.6);transition:opacity .2s,transform .35s cubic-bezier(.2,1.6,.4,1)}
@@ -135,7 +156,18 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
     <button class="btn primary" id="rsBack">退回</button><button class="btn" id="rsTube">加个空瓶</button><button class="btn ghost" id="rsClose">再想想</button></div></div>
   <div id="win" class="overlay" hidden><div class="panel win">
     <div class="stars" id="winStars"></div><h2 id="winTitle">漂亮</h2><p id="winInfo"></p>
+    <div class="row" style="margin-bottom:8px"><button class="btn" id="winShare">晒成绩</button></div>
     <div class="row"><button class="btn ghost" id="winHome">关卡</button><button class="btn" id="winAgain">再玩一次</button><button class="btn primary" id="winNext">下一关</button></div>
+  </div></div>
+  <div id="coll" class="overlay" hidden><div class="panel coll">
+    <header><h2>收藏</h2><span>★ <b id="collStars">0</b></span></header>
+    <h3>背景</h3><div class="items" id="collBg"></div>
+    <h3>液体</h3><div class="items" id="collLiq"></div>
+    <button class="btn primary" id="collClose" style="flex:none">好了</button>
+  </div></div>
+  <div id="share" class="overlay" hidden><div class="panel share">
+    <img id="shareImg" alt="成绩卡"><p>长按图片可以保存或发给朋友</p>
+    <div class="row"><button class="btn ghost" id="shareClose">关闭</button><a class="btn" id="shareSave" download="倒倒乐成绩.png">保存图片</a><button class="btn primary" id="shareGo" hidden>分享</button></div>
   </div></div>
   <div id="home" class="overlay"><div class="panel home">
     <div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true">
@@ -148,8 +180,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
       <button class="mode" data-mode="challenge"><b>挑战</b><small>计时 · 道具有限</small></button></div>
     <button class="btn primary" id="playBtn" style="flex:none;height:52px;font-size:17px">开始</button>
     <div class="grid" id="grid"></div>
-    <div class="opts"><label><input type="checkbox" id="optSound">声音</label><label><input type="checkbox" id="optSym">颜色加图案</label></div>
-    <p class="ver">v1.1 · 每关都保证有解</p>
+    <div class="opts"><button class="pill" id="collBtn">★ <b id="starTotal">0</b> 收藏</button><label><input type="checkbox" id="optSound">声音</label><label><input type="checkbox" id="optSym">颜色加图案</label></div>
+    <p class="ver">v1.2 · 每关都保证有解</p>
   </div></div>
 </div>
 <script>
@@ -161,29 +193,38 @@ function rngOf(a){a=a>>>0;return function(){a=a+0x6D2B79F5>>>0;let t=a;t=Math.im
 function shuffleIn(a,rng){for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 const topOf=t=>t.length?t[t.length-1]:-1;
 function runOf(t){const c=topOf(t);let n=0;for(let i=t.length-1;i>=0&&t[i]===c;i--)n++;return n;}
+// 凑满：同一种颜色的 4 格都在一个瓶里（小瓶装不下 4 格，永远不算凑满）
 const isDone=(t,cap)=>t.length===cap&&runOf(t)===cap;
 const isMono=t=>t.length>0&&runOf(t)===t.length;
-const cpS=s=>({cap:s.cap,t:s.t.map(x=>x.slice())});
-// 能倒：源瓶有水且没装满单色，目标瓶没满，目标是空瓶或顶上同色
-function canPour(s,i,j){const a=s.t[i],b=s.t[j];return i!==j&&a.length>0&&b.length<s.cap&&!isDone(a,s.cap)&&(!b.length||topOf(b)===topOf(a));}
+// 局面里 caps（每个瓶子的容量，小瓶是 2）和 ice（冰冻瓶要先凑满几瓶才化开）是开局定好的，倒水时不变，复制时共用
+const cpS=s=>({...s,t:s.t.map(x=>x.slice())});
+const capOf=(s,i)=>s.caps?s.caps[i]:s.cap;
+const doneCount=s=>{let n=0;for(const x of s.t)if(isDone(x,s.cap))n++;return n;};
+const iceLeft=(s,i)=>s.ice&&s.ice[i]?Math.max(0,s.ice[i]-doneCount(s)):0;
+// 能倒：两个瓶子都没冻着，源瓶有水且没凑满，目标瓶没满，目标是空瓶或顶上同色
+function canPour(s,i,j){const a=s.t[i],b=s.t[j];return i!==j&&a.length>0&&b.length<capOf(s,j)&&!isDone(a,s.cap)&&(!b.length||topOf(b)===topOf(a))
+  &&!(s.ice&&(iceLeft(s,i)||iceLeft(s,j)));}
 // 顶上连着的同色一起倒，倒不下的留在原瓶
-const pourAmt=(s,i,j)=>Math.min(runOf(s.t[i]),s.cap-s.t[j].length);
+const pourAmt=(s,i,j)=>Math.min(runOf(s.t[i]),capOf(s,j)-s.t[j].length);
+// 加一个普通空瓶（道具），容量和冰冻信息跟着补一位
+function addEmpty(s){const r=cpS(s);r.t.push([]);if(r.caps)r.caps=[...r.caps,r.cap];if(r.ice)r.ice=[...r.ice,0];return r;}
 function applyPour(s,i,j){const n=pourAmt(s,i,j),r=cpS(s),c=topOf(r.t[i]);for(let k=0;k<n;k++){r.t[i].pop();r.t[j].push(c);}return r;}
 const isSolved=s=>s.t.every(x=>!x.length||isDone(x,s.cap));
 function legalMoves(s){const m=[];for(let i=0;i<s.t.length;i++)for(let j=0;j<s.t.length;j++)if(canPour(s,i,j))m.push([i,j]);return m;}
-// 求解用的步：整瓶单色倒进空瓶等于没走，多个空瓶只算第一个；去掉这些不会丢解
+// 求解用的步：整瓶单色倒进同样大的空瓶等于没走，同样大的空瓶只算第一个；去掉这些不会丢解
 function usefulMoves(s){
-  const m=[];let e0=-1;s.t.forEach((x,k)=>{if(!x.length&&e0<0)e0=k;});
+  const m=[],e0=new Map();s.t.forEach((x,k)=>{const c=capOf(s,k);if(!x.length&&!iceLeft(s,k)&&!e0.has(c))e0.set(c,k);});
   for(let i=0;i<s.t.length;i++)for(let j=0;j<s.t.length;j++){
     if(!canPour(s,i,j))continue;
-    if(!s.t[j].length&&(j!==e0||isMono(s.t[i])))continue;
+    if(!s.t[j].length&&(j!==e0.get(capOf(s,j))||isMono(s.t[i])&&capOf(s,i)===capOf(s,j)))continue;
     m.push([i,j]);
   }
   return m;
 }
 // 只剩单色瓶时，剩下的只是把同色并到一起，游戏会自动收尾
 function onlyMerges(s){return s.t.every(x=>!x.length||isMono(x));}
-const keyOf=s=>s.t.map(x=>String.fromCharCode(...x.map(c=>97+c))).sort().join('|');
+// 局面指纹：瓶子顺序无关；小瓶和冰冻瓶跟普通瓶不能互换，前面加上记号
+const keyOf=s=>s.t.map((x,k)=>(s.caps&&s.caps[k]!==s.cap?'s'+s.caps[k]:'')+(s.ice&&s.ice[k]?'i'+s.ice[k]:'')+String.fromCharCode(...x.map(c=>97+c))).sort().join('|');
 // 估价：瓶内换色次数 + 每种颜色分散在几个瓶子
 function heur(s){
   let h=0;const n=new Map();
@@ -215,8 +256,17 @@ function solve(s0,maxNodes=60000,w=2){
 
 // ===== 关卡参数：第 1 关教学，第 2 关巩固，第 3 关开始有挑战；之后「紧—松—中」循环，颜色逐渐变多 =====
 // pick 是离线选关时在一批候选里取第几百分位的难度（1 最难，0 最容易）；adj 是开局同瓶相邻同色的上限；
-// hard 是「紧」关里不带问号的那些，界面上标成困难关、多给道具
+// hard 是「紧」关里不带问号的那些，界面上标成困难关、多给道具；
+// 新玩法：第 18 关起冰冻瓶（ice 是每个冰冻瓶要先凑满几瓶），第 34 关起小瓶（small 个 2 格小瓶顶替一个空瓶）
+function mechOf(L){
+  const ice=L===18||L>18&&L%5===3,small=L===34||L>34&&L%5===4;
+  return{...(ice?{ice:L<30?[1]:[1,2]}:{}),...(small?{small:2}:{})};
+}
 function baseParams(L){
+  const P=baseParams0(L),M=mechOf(L),intro=L===18||L===34?{pick:.2}:{};
+  return M.small?{...P,...M,...intro,empty:P.empty-1}:{...P,...M,...intro};
+}
+function baseParams0(L){
   if(L===1)return{fixed:[[0,0,6,6],[6,6,0,0],[]],colors:2,empty:1,pick:.5};
   if(L===2)return{colors:4,empty:2,adj:5,pick:.1};
   if(L===3)return{colors:6,empty:2,adj:2,pick:.85};
@@ -233,16 +283,23 @@ function baseParams(L){
 function levelParams(L,mode){
   const P=baseParams(L);if(mode!=='casual'||P.fixed)return P;
   const colors=Math.min(10,Math.max(3,P.colors-(L<=4?1:2)));
-  return{...P,colors,empty:colors>=8?3:2,adj:P.adj+2,hidden:false,pick:.05,hard:false};
+  return{...P,colors,empty:(colors>=8?3:2)-(P.small?1:0),adj:P.adj+2,hidden:false,pick:.05,hard:false};
 }
 function generateSeed(L,seed,mode='challenge'){
   const P=levelParams(L,mode);
   if(P.fixed)return{s:{cap:CAP,t:P.fixed.map(x=>x.slice())},P,seed};
   const rng=rngOf(seed*7919+L*104729+(mode==='casual'?17:0));
-  const t=deal(P,rng);return t&&{s:{cap:CAP,t},P,seed};
+  const s=deal(P,rng);return s&&{s,P,seed};
 }
-// 按参数随机摆一局：顶上不能已经连着 3 格同色，同瓶相邻同色不超过 adj
+// 按参数随机摆一局：顶上不能已经连着 3 格同色，同瓶相邻同色不超过 adj；再按需要冻住几瓶、放几个小瓶
 function deal(P,rng){
+  const t=dealTubes(P,rng);if(!t)return null;
+  const s={cap:CAP,t};
+  if(P.ice){const full=shuffleIn(t.map((_,k)=>k).filter(k=>t[k].length),rng);s.ice=t.map(()=>0);P.ice.forEach((n,k)=>s.ice[full[k]]=n);}
+  if(P.small){s.caps=t.map(()=>CAP);for(let k=0;k<P.small;k++){s.t.push([]);s.caps.push(2);if(s.ice)s.ice.push(0);}}
+  return s;
+}
+function dealTubes(P,rng){
   const cols=shuffleIn([...Array(12).keys()],rng).slice(0,P.colors);
   for(let a=0;a<400;a++){
     const u=[];for(const c of cols)for(let k=0;k<CAP;k++)u.push(c);shuffleIn(u,rng);
@@ -278,8 +335,8 @@ function scoreLevel(g,n=12){
   const r=solve(g.s,80000,1.5);if(!r.ok)return null;
   return{...deadStats(g.s,n,g.seed),par:r.path.length};
 }
-/*SEEDS-START*/const LEVEL_SEEDS=[[1,3],[3,11],[18,19],[6,19],[16,23],[9,21],[8,27],[15,28],[11,25],[10,28],[5,29],[20,25],[10,27],[19,33],[16,28],[11,31],[12,35],[22,26],[12,29],[15,38],[12,31],[13,36],[20,34],[17,30],[11,32],[13,41],[14,35],[20,36],[11,38],[3,35],[19,36],[10,43],[22,36],[24,39],[19,41],[20,39],[2,45],[18,43],[1,35],[11,41],[22,41],[6,36],[13,40],[23,47],[23,37],[14,42],[1,42],[16,36],[11,41],[12,42],[20,38],[24,40],[18,41],[5,37],[8,43],[24,44],[21,37],[2,43],[1,43],[21,38]];/*SEEDS-END*/
-/*CASUAL-SEEDS-START*/const CASUAL_SEEDS=[[1,3],[2,9],[4,16],[5,15],[7,17],[3,15],[2,20],[6,18],[2,16],[12,20],[11,18],[2,17],[10,17],[1,24],[9,17],[5,23],[2,22],[5,19],[11,24],[2,26],[23,25],[2,27],[2,28],[7,20],[2,26],[10,30],[2,28],[2,29],[4,31],[4,27],[4,32],[13,34],[2,30],[10,34],[18,35],[5,33],[15,35],[15,32],[3,32],[11,32],[14,34],[3,31],[7,32],[6,36],[3,33],[10,32],[13,33],[14,30],[4,31],[8,33],[3,31],[12,35],[13,37],[7,29],[10,32],[22,33],[2,30],[8,33],[9,33],[7,30]];/*CASUAL-SEEDS-END*/
+/*SEEDS-START*/const LEVEL_SEEDS=[[1,3],[3,11],[18,19],[6,19],[16,23],[9,21],[8,27],[15,28],[11,25],[10,28],[5,29],[20,25],[10,27],[19,33],[16,28],[11,31],[12,35],[6,27],[12,29],[15,38],[12,31],[13,36],[24,34],[17,30],[11,32],[13,41],[14,35],[12,35],[11,38],[3,35],[19,36],[10,43],[2,38],[22,51],[19,41],[20,39],[2,45],[8,46],[16,41],[11,41],[22,41],[6,36],[11,41],[9,47],[23,37],[14,42],[1,42],[22,37],[4,49],[12,42],[20,38],[24,40],[18,41],[1,42],[8,43],[24,44],[21,37],[21,44],[20,50],[21,38]];/*SEEDS-END*/
+/*CASUAL-SEEDS-START*/const CASUAL_SEEDS=[[1,3],[2,9],[4,16],[5,15],[7,17],[3,15],[2,20],[6,18],[2,16],[12,20],[11,18],[2,17],[10,17],[1,24],[9,17],[5,23],[2,22],[9,20],[11,24],[2,26],[23,25],[2,27],[5,27],[7,20],[2,26],[10,30],[2,28],[5,32],[4,31],[4,27],[4,32],[13,34],[13,31],[2,39],[18,35],[5,33],[15,35],[15,33],[2,31],[11,32],[14,34],[3,31],[15,34],[8,35],[3,33],[10,32],[13,33],[9,31],[4,34],[8,33],[3,31],[12,35],[1,38],[2,33],[10,32],[22,33],[2,30],[24,33],[4,35],[7,30]];/*CASUAL-SEEDS-END*/
 // 表里存 [种子, 标准步数]；超出表的关卡现场挑一个有解的
 function generate(L,mode='challenge'){
   const tab=mode==='casual'?CASUAL_SEEDS:LEVEL_SEEDS,e=tab[L-1];
@@ -298,8 +355,8 @@ function dailyParams(day){
 function generateDaily(day){
   const P=dailyParams(day);
   for(let seed=1;seed<40;seed++){
-    const t=deal(P,rngOf(day*2654435+seed*7919+99991));if(!t)continue;
-    const s={cap:CAP,t},r=solve(s,80000,1.5);if(r.ok)return{s,P,seed,par:r.path.length};
+    const s=deal(P,rngOf(day*2654435+seed*7919+99991));if(!s)continue;
+    const r=solve(s,80000,1.5);if(r.ok)return{s,P,seed,par:r.path.length};
   }
   return null;
 }
@@ -361,6 +418,7 @@ const sfx={
   undo(){tone(620,.14,'sine',.07,0,.55);},
   hint(){tone(1046,.12,'sine',.06);tone(1318,.16,'sine',.05,.08);},
   tube(){tone(880,.1,'sine',.06);tone(1320,.14,'sine',.05,.07);noise(.08,.12,3000,2000);},
+  thaw(){noise(.25,.16,4000,1200);[1760,2349,2794].forEach((f,i)=>tone(f,.18,'sine',.04,.05+i*.06));},
   // 困难关开场：两声低沉的鼓
   drum(){tone(110,.28,'triangle',.16,0,.5);tone(98,.36,'triangle',.16,.22,.5);noise(.12,.08,400,150);},
   win(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.4,'triangle',.1,i*.085));},
@@ -379,46 +437,86 @@ function clipPoly(P,sn,cs,c){
   return out;
 }
 function areaOf(P){let s=0;for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
-const LC=new Map();
-// 倾斜 th 时装 A 面积的液体，液面所在的世界高度
-function levelC(th,A){
+// 倾斜 th 时装 A 面积的液体，液面所在的世界高度（g 是哪一种瓶身，默认普通瓶）
+function levelC(th,A,g=GEO){
   const key=Math.round(th*2000)+'|'+Math.round(A*4);
-  let v=LC.get(key);if(v!==undefined)return v;
-  const P=GEO.P,sn=Math.sin(th),cs=Math.cos(th);let lo=Infinity,hi=-Infinity;
+  let v=g.lc.get(key);if(v!==undefined)return v;
+  const P=g.P,sn=Math.sin(th),cs=Math.cos(th);let lo=Infinity,hi=-Infinity;
   for(const p of P){const h=-p[0]*sn+p[1]*cs;if(h<lo)lo=h;if(h>hi)hi=h;}
   if(A<=0)v=lo;else{
     for(let k=0;k<22;k++){const m=(lo+hi)/2;if(areaOf(clipPoly(P,sn,cs,m))<A)lo=m;else hi=m;}
     v=(lo+hi)/2;
   }
-  if(LC.size>6000)LC.clear();LC.set(key,v);return v;
+  if(g.lc.size>6000)g.lc.clear();g.lc.set(key,v);return v;
 }
-function buildGeo(w){
-  const H=w*3.45,r=w*.47,P=[[-w/2,H]];
+function tubeShape(w,H){
+  const r=w*.47,P=[[-w/2,H]];
   for(let k=0;k<=10;k++){const a=Math.PI+k/10*Math.PI/2;P.push([-w/2+r+Math.cos(a)*r,r+Math.sin(a)*r]);}
   for(let k=0;k<=10;k++){const a=1.5*Math.PI+k/10*Math.PI/2;P.push([w/2-r+Math.cos(a)*r,r+Math.sin(a)*r]);}
   P.push([w/2,H]);
-  Object.assign(GEO,{w,H,r,P});LC.clear();
-  const fillTop=H-w*.42;GEO.capA=areaOf(clipPoly(P,0,1,fillTop));GEO.unitA=GEO.capA/CAP;
-  GEO.uc=[];for(let u=0;u<CAP;u++)GEO.uc.push(levelC(0,(u+.5)*GEO.unitA));
-  // 倒水角度表：瓶里剩 A 面积时，液面刚好碰到瓶口外角需要倾斜多少
-  GEO.tab=[];
-  for(let k=0;k<=40;k++){
-    const A=k/40*GEO.capA;let lo=0,hi=1.85;
-    for(let it=0;it<20;it++){const m=(lo+hi)/2,hs=-(w/2)*Math.sin(m)+H*Math.cos(m);if(levelC(m,A)<hs)lo=m;else hi=m;}
-    GEO.tab.push(hi);
-  }
-  GEO.grad={};
+  return{w,H,r,P,lc:new Map()};
 }
-function pourAngle(A){const x=clamp(A/GEO.capA,0,1)*40,i=Math.min(39,Math.floor(x)),f=x-i;return GEO.tab[i]*(1-f)+GEO.tab[i+1]*f;}
+// 每格液体面积所有瓶子都一样；小瓶只是矮一截
+function finishGeo(g,cap){
+  const w=g.w,H=g.H;g.cap=cap;g.unitA=GEO.unitA;g.capA=cap*GEO.unitA;
+  g.uc=[];for(let u=0;u<cap;u++)g.uc.push(levelC(0,(u+.5)*g.unitA,g));
+  // 倒水角度表：瓶里剩 A 面积时，液面刚好碰到瓶口外角需要倾斜多少
+  g.tab=[];
+  for(let k=0;k<=40;k++){
+    const A=k/40*g.capA;let lo=0,hi=1.85;
+    for(let it=0;it<20;it++){const m=(lo+hi)/2,hs=-(w/2)*Math.sin(m)+H*Math.cos(m);if(levelC(m,A,g)<hs)lo=m;else hi=m;}
+    g.tab.push(hi);
+  }
+}
+function buildGeo(w){
+  Object.assign(GEO,tubeShape(w,w*3.45));
+  GEO.unitA=areaOf(clipPoly(GEO.P,0,1,GEO.H-w*.42))/CAP;GEO.sub={};GEO.grad={};
+  finishGeo(GEO,CAP);
+}
+function geoOf(cap){
+  if(cap===CAP||!GEO.w)return GEO;
+  let g=GEO.sub[cap];
+  if(!g){g=GEO.sub[cap]=tubeShape(GEO.w,GEO.H-(CAP-cap)*GEO.unitA/GEO.w);finishGeo(g,cap);}
+  return g;
+}
+const geoT=T=>geoOf(T.cap);
+function pourAngle(A,g=GEO){const x=clamp(A/g.capA,0,1)*40,i=Math.min(39,Math.floor(x)),f=x-i;return g.tab[i]*(1-f)+g.tab[i+1]*f;}
 
 // ===== 存档（只存在本机浏览器）。两个模式分开记进度；挑战模式按关保存最佳用时，留给以后的排行榜 =====
 const SAVE_KEY='daodaole-v1';
 const freshSave=()=>({mode:'casual',muted:false,sym:false,casual:{unlocked:1,stars:{}},challenge:{unlocked:1,stars:{},records:{}},
-  daily:{best:{},streak:0,last:-1}});
+  daily:{best:{},streak:0,last:-1},skin:{bg:'night',liq:'classic'},collSeen:0});
 let SAVE=freshSave();
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object'){const f=freshSave();
-  SAVE={...f,...s,casual:{...f.casual,...s.casual},challenge:{...f.challenge,...s.challenge},daily:{...f.daily,...s.daily}};}}catch(e){}}
+  SAVE={...f,...s,casual:{...f.casual,...s.casual},challenge:{...f.challenge,...s.challenge},daily:{...f.daily,...s.daily},skin:{...f.skin,...s.skin}};}}catch(e){}}
 function writeSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}}
+
+// ===== 收藏：累计星星够了就解锁，星星不会花掉 =====
+const BGS=[
+  {k:'night',name:'夜空',need:0,c:['#0d1828','#18324a']},
+  {k:'dawn',name:'晚霞',need:10,c:['#1f1426','#5a2f45']},
+  {k:'forest',name:'森林',need:30,c:['#0c1b16','#1f4636']},
+  {k:'ocean',name:'深海',need:60,c:['#04131f','#0b4660']},
+  {k:'candy',name:'糖果',need:100,c:['#1d1030','#5b3184']},
+  {k:'gold',name:'鎏金',need:160,c:['#17120a','#4d3b17']},
+];
+// 液体：stops 是横向渐变 [位置, 混白/混黑比例, 255 白或 0 黑]，比例 0 就是原色
+const LIQS=[
+  {k:'classic',name:'经典',need:0,stops:[[0,.25,255],[.4,0],[1,.12,0]]},
+  {k:'jelly',name:'果冻',need:20,stops:[[0,.6,255],[.16,.2,255],[.42,0],[.85,.12,0],[1,.32,0]]},
+  {k:'neon',name:'荧光',need:50,stops:[[0,.45,255],[.5,.08,255],[1,0]]},
+  {k:'star',name:'星光',need:90,stops:[[0,.3,255],[.45,0],[1,.25,0]]},
+  {k:'pearl',name:'珠光',need:140,stops:[[0,.75,255],[.35,.4,255],[.7,.2,255],[1,.05,0]]},
+];
+function totalStars(){let n=0;for(const m of ['casual','challenge'])for(const v of Object.values(SAVE[m].stars))n+=v;
+  for(const r of Object.values(SAVE.daily.best))n+=r.stars||0;return n;}
+const allItems=()=>[...BGS.map(x=>({...x,kind:'背景'})),...LIQS.map(x=>({...x,kind:'液体'}))];
+function applySkin(){
+  const b=BGS.find(x=>x.k===SAVE.skin.bg)||BGS[0],r=document.documentElement.style;
+  r.setProperty('--bg0',b.c[0]);r.setProperty('--bg1',b.c[1]);document.body.style.background=b.c[0];
+  G.liq=(LIQS.find(x=>x.k===SAVE.skin.liq)||LIQS[0]).k;if(GEO.grad)GEO.grad={};kick(100);
+}
+const liqOf=()=>LIQS.find(x=>x.k===G.liq)||LIQS[0];
 
 // ===== 游戏状态 =====
 const TOOLS={challenge:{undo:5,hint:3,tube:1},casual:{undo:Infinity,hint:Infinity,tube:2}},HARD_BONUS={undo:3,hint:1,tube:1};
@@ -443,7 +541,9 @@ function segsOf(i){
     if(last&&last.c===t[k]&&last.hid===!!h[k])last.v++;else out.push({c:t[k],v:1,hid:!!h[k],rev:0});}
   return out;
 }
-function newTube(i){return{segs:segsOf(i),x:null,y:null,hx:0,hy:0,lift:0,shakeT:-1e9,doneT:G.s&&isDone(G.s.t[i],CAP)?-1e9:0,busy:0,pose:null,drag:null};}
+// cap：容量（小瓶 2 格）；frozen：还冻着；sl/sv：液面晃动的角度和角速度
+function newTube(i){return{segs:segsOf(i),cap:capOf(G.s,i),seed:i*7%11,frozen:iceLeft(G.s,i)>0,thawT:0,sl:0,sv:0,
+  x:null,y:null,hx:0,hy:0,lift:0,shakeT:-1e9,doneT:G.s&&isDone(G.s.t[i],CAP)?-1e9:0,busy:0,pose:null,drag:null};}
 function volOf(T){let v=0;for(const s of T.segs)v+=s.v;return v;}
 
 // ===== 布局 =====
@@ -474,11 +574,11 @@ function layout(animate){
 function liquidGrad(c){
   const k=c<0?'h':c;if(GEO.grad[k])return GEO.grad[k];
   const base=c<0?HID:PAL[c],w=GEO.w,g=ctx.createLinearGradient(-w/2,0,w/2,0);
-  g.addColorStop(0,mixHex(base,.25,255));g.addColorStop(.4,base);g.addColorStop(1,mixHex(base,.12,0));
+  for(const [o,m,to] of liqOf().stops)g.addColorStop(o,m?mixHex(base,m,to):base);
   return GEO.grad[k]=g;
 }
 function fillPoly(P){ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fill();}
-function tubePath(){const P=GEO.P;ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));}
+function tubePath(g=GEO){const P=g.P;ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));}
 function drawSym(k,s){
   ctx.beginPath();
   switch(k){
@@ -498,16 +598,20 @@ function drawSym(k,s){
   ctx.closePath();ctx.fill('evenodd');
 }
 function drawTube(T,ox,oy,th,t){
-  const g=GEO,w=g.w,H=g.H;
+  const g=geoT(T),w=g.w,H=g.H,thL=th+T.sl;
   ctx.save();ctx.translate(ox,oy);ctx.rotate(th);ctx.scale(1,-1);
   // 完成后的光晕
   if(T.doneT>0&&t-T.doneT<1100){const p=(t-T.doneT)/1100,top=T.segs[T.segs.length-1];
     ctx.save();ctx.globalAlpha=(1-p)*.55;ctx.fillStyle=top?PAL[top.c]:'#fff';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=26*(1-p)+6;
-    tubePath();ctx.closePath();ctx.fill();ctx.restore();}
-  tubePath();ctx.closePath();ctx.fillStyle='rgba(255,255,255,.07)';ctx.fill();
-  ctx.save();tubePath();ctx.closePath();ctx.clip();
-  const sn=Math.sin(th),cs=Math.cos(th),segs=T.segs,lv=[];let cum=0;
-  for(const s of segs){cum+=s.v;lv.push(levelC(th,cum*g.unitA));}
+    tubePath(g);ctx.closePath();ctx.fill();ctx.restore();}
+  if(G.liq==='neon'&&T.segs.length){const vol=volOf(T),tc=T.segs[T.segs.length-1];
+    if(vol>.02){ctx.save();ctx.shadowColor=tc.hid?HID:PAL[tc.c];ctx.shadowBlur=w*.75;ctx.fillStyle=ctx.shadowColor;
+      fillPoly(clipPoly(g.P,Math.sin(thL),Math.cos(thL),levelC(thL,vol*g.unitA,g)));ctx.restore();}}
+  tubePath(g);ctx.closePath();ctx.fillStyle='rgba(255,255,255,.07)';ctx.fill();
+  ctx.save();tubePath(g);ctx.closePath();ctx.clip();
+  // 液面按 th+晃动角 算：晃动只改液面朝向，面积不变
+  const sn=Math.sin(thL),cs=Math.cos(thL),segs=T.segs,lv=[];let cum=0;
+  for(const s of segs){cum+=s.v;lv.push(levelC(thL,cum*g.unitA,g));}
   for(let k=segs.length-1;k>=0;k--){
     const s=segs[k];if(s.v<=.002)continue;
     const col=s.hid?-1:s.c;
@@ -518,12 +622,18 @@ function drawTube(T,ox,oy,th,t){
     if(s.rev&&t-s.rev<520){const p=(t-s.rev)/520,P1=clipPoly(g.P,sn,cs,lv[k]);
       ctx.save();ctx.globalAlpha=1-p;ctx.fillStyle=HID;fillPoly(P1);ctx.globalAlpha=Math.sin(p*Math.PI)*.6;ctx.fillStyle='#fff';fillPoly(P1);ctx.restore();}
   }
+  if(G.liq==='star'&&lv.length){const top=lv[lv.length-1],r=w*.05;ctx.fillStyle='#fff';
+    for(let k=0;k<7;k++){const u=(((k*37+T.seed)%11)/10-.5)*w*.6,v=g.r*.5+(((k*53+T.seed*3)%17)/16)*H*.85;
+      if(-u*sn+v*cs>top-r*2)continue;ctx.globalAlpha=.3+.7*Math.abs(Math.sin(t/420+k*1.9+T.seed));
+      ctx.beginPath();ctx.moveTo(u,v-r*2);ctx.lineTo(u+r*.45,v-r*.45);ctx.lineTo(u+r*2,v);ctx.lineTo(u+r*.45,v+r*.45);ctx.lineTo(u,v+r*2);
+      ctx.lineTo(u-r*.45,v+r*.45);ctx.lineTo(u-r*2,v);ctx.lineTo(u-r*.45,v-r*.45);ctx.closePath();ctx.fill();}
+    ctx.globalAlpha=1;}
   // 问号与图案只在瓶子立着时画
   if(Math.abs(th)<.01){
     let u=0;
     for(const s of segs){
       const whole=Math.floor(s.v+.05);
-      for(let q=0;q<whole&&u<CAP;q++,u++){
+      for(let q=0;q<whole&&u<g.cap;q++,u++){
         if(!s.hid&&!G.sym)continue;
         ctx.save();ctx.translate(0,g.uc[u]);ctx.scale(1,-1);
         if(s.hid){ctx.fillStyle='rgba(255,255,255,.55)';ctx.font=`700 ${Math.round(w*.5)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('?',0,1);}
@@ -533,11 +643,21 @@ function drawTube(T,ox,oy,th,t){
       if(whole<s.v-.05)break;
     }
   }
+  // 冰层：冻着时整瓶蒙一层霜，化开时淡出
+  const ice=T.frozen?1:T.thawT&&t>T.thawT&&t-T.thawT<600?1-(t-T.thawT)/600:T.thawT>t?1:0;
+  if(ice>0){ctx.save();ctx.globalAlpha=ice;ctx.fillStyle='rgba(196,228,255,.58)';ctx.fillRect(-w,0,w*2,H+w);
+    ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=Math.max(1,w*.035);ctx.beginPath();
+    for(const [x0,y0,x1,y1] of [[-.3,.75,.15,.55],[.15,.55,.05,.38],[.15,.55,.36,.48],[-.2,.28,.3,.12]]){ctx.moveTo(x0*w,y0*H);ctx.lineTo(x1*w,y1*H);}
+    ctx.stroke();ctx.restore();}
   // 玻璃高光
   ctx.fillStyle='rgba(255,255,255,.16)';ctx.beginPath();ctx.roundRect?ctx.roundRect(-w*.34,g.r*.7,w*.1,H-g.r*.7-w*.3,w*.05):ctx.rect(-w*.34,g.r*.7,w*.1,H-g.r*.7-w*.3);ctx.fill();
   ctx.restore();
-  tubePath();ctx.strokeStyle='rgba(225,238,255,.62)';ctx.lineWidth=Math.max(1.6,w*.055);ctx.lineJoin='round';ctx.stroke();
+  tubePath(g);ctx.strokeStyle=ice>0?`rgba(200,232,255,${.62+.3*ice})`:'rgba(225,238,255,.62)';ctx.lineWidth=Math.max(1.6,w*.055);ctx.lineJoin='round';ctx.stroke();
   ctx.fillStyle='rgba(225,238,255,.7)';ctx.beginPath();ctx.ellipse?ctx.ellipse(0,H,w/2+w*.08,w*.07,0,0,7):ctx.rect(-w/2-w*.08,H-2,w+w*.16,4);ctx.fill();
+  // 冰盖：盖在瓶口上的一块冰
+  if(ice>0){const cw=w*1.05,ch=w*.5,cy=H-w*.12+(1-ice)*w*.6;ctx.save();ctx.globalAlpha=ice;
+    ctx.fillStyle='#d8efff';ctx.beginPath();ctx.roundRect?ctx.roundRect(-cw/2,cy,cw,ch,w*.14):ctx.rect(-cw/2,cy,cw,ch);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(-cw/2+w*.1,cy+ch*.55,cw*.45,ch*.16);ctx.restore();}
   // 软木塞
   if(T.doneT){const p=T.doneT<0?1:clamp((t-T.doneT-120)/420,0,1);
     if(p>0){const drop=(1-easeOut(p))*w*1.6,bounce=p<1?Math.sin(p*Math.PI*2.4)*(1-p)*w*.12:0;
@@ -568,16 +688,20 @@ function draw(t){
   // 可以倒进去的瓶子：瓶口上方的小箭头
   const src=G.sel>=0?G.sel:-1;
   if(src>=0){const bob=Math.sin(t/170)*3;
-    TUBES.forEach((T,j)=>{if(j!==src&&!T.busy&&canPour(G.s,src,j))drawChevron(T.x,T.y-H-16+bob,'rgba(255,255,255,.8)');});}
-  if(G.hint&&t<G.hint.until){const T=TUBES[G.hint.j];if(T)drawChevron(T.x,T.y-H-16+Math.sin(t/170)*3,'#ffe08a');}
+    TUBES.forEach((T,j)=>{if(j!==src&&!T.busy&&canPour(G.s,src,j))drawChevron(T.x,T.y-geoT(T).H-16+bob,'rgba(255,255,255,.8)');});}
+  if(G.hint&&t<G.hint.until){const T=TUBES[G.hint.j];if(T)drawChevron(T.x,T.y-geoT(T).H-16+Math.sin(t/170)*3,'#ffe08a');}
   const front=[];
   TUBES.forEach((T,i)=>{if(T.pose||T.drag)front.push(T);else{const p=poseOf(T,t);drawTube(T,p.ox,p.oy,p.th,t);}});
   for(const a of G.anims)if(a.stream)drawStream(a,t);
   for(const T of front){const p=poseOf(T,t);drawTube(T,p.ox,p.oy,p.th,t);}
+  // 冰冻瓶上方的数字：还要凑满几瓶
+  TUBES.forEach((T,i)=>{if(!T.frozen)return;const n=iceLeft(G.s,i);if(!n)return;const p=poseOf(T,t),y=p.oy-geoT(T).H-w*.55,r=Math.max(10,w*.3);
+    ctx.fillStyle='#7cc8ff';ctx.beginPath();ctx.arc(p.ox,y,r,0,7);ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#e8f6ff';ctx.stroke();
+    ctx.fillStyle='#0d2a44';ctx.font=`800 ${Math.round(r*1.15)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n,p.ox,y+1);});
   drawFx(t);
 }
 function drawStream(a,t){
-  const s=a.stream,w=GEO.w,B=TUBES[a.j],surf=B.y-levelC(0,volOf(B)*GEO.unitA)+2;
+  const s=a.stream,w=GEO.w,B=TUBES[a.j],surf=B.y-levelC(0,volOf(B)*GEO.unitA,geoT(B))+2;
   const y0=s.y0,y1=Math.max(y0,Math.min(surf,y0+(surf-y0)*s.head)),yTop=y0+(surf-y0)*s.tail;
   if(y1-yTop<1)return;
   const wid=w*.17*(s.tail>0?1-s.tail*.5:1);
@@ -594,6 +718,9 @@ function burst(x,y,col,n,sp=1){n=reduceMotion?Math.ceil(n/4):n;
   for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.6,v=(.12+Math.random()*.32)*sp;
     FX.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:.0009,life:0,max:600+Math.random()*500,s:2+Math.random()*3.5,c:Math.random()<.3?'#fff':col,star:Math.random()<.35,r:Math.random()*6});}
   kick();}
+// 水花：小圆点，往上溅一点就落回去
+function splash(x,y,col,n){for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.2,v=.08+Math.random()*.16;
+  FX.push({x:x+(Math.random()-.5)*6,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:.0011,life:0,max:260+Math.random()*220,s:1.4+Math.random()*2.2,c:Math.random()<.25?'#fff':col,drop:true});}kick();}
 function floatText(x,y,text,col){FX.push({x,y,vx:0,vy:-.05,g:0,life:0,max:1100,text,c:col});kick();}
 function confetti(){const n=reduceMotion?30:150;
   for(let i=0;i<n;i++)FX.push({x:Math.random()*R.W,y:-20-Math.random()*R.H*.5,vx:(Math.random()-.5)*.08,vy:.08+Math.random()*.14,g:.00006,life:0,
@@ -606,6 +733,7 @@ function drawFx(t){
     const k=1-p.life/p.max;ctx.globalAlpha=Math.min(1,k*1.8);ctx.fillStyle=p.c;
     if(p.text){ctx.save();const sc=1+Math.max(0,.3-p.life/600);ctx.translate(p.x,p.y);ctx.scale(sc,sc);ctx.font='800 22px system-ui';ctx.textAlign='center';
       ctx.lineWidth=4;ctx.strokeStyle='rgba(10,20,34,.8)';ctx.strokeText(p.text,0,0);ctx.fillText(p.text,0,0);ctx.restore();continue;}
+    if(p.drop){ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,7);ctx.fill();continue;}
     ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);
     if(p.star){const s=p.s*1.3;ctx.beginPath();for(let j=0;j<8;j++){const rr=j%2?s*.35:s,a=j*Math.PI/4;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);}ctx.closePath();ctx.fill();}
     else ctx.fillRect(-p.s/2,-p.s*.35,p.s,p.s*.7);
@@ -613,6 +741,17 @@ function drawFx(t){
   ctx.globalAlpha=1;
 }
 
+// ===== 液面晃动：倾斜角或横向速度一变，液面就偏离水平，再像弹簧一样晃回来 =====
+function slosh(T,t,dt){
+  if(reduceMotion){T.sl=0;return false;}
+  const p=poseOf(T,t),vx=T.pox===undefined?0:(p.ox-T.pox)/Math.max(1,dt);
+  if(T.pth!==undefined&&dt>0)T.sv+=(p.th-T.pth)*.0015/Math.max(1,dt)*16-(vx-(T.pvx||0))*.0009;
+  T.pox=p.ox;T.pth=p.th;T.pvx=vx;
+  T.sv+=(-T.sl*1.9e-4-T.sv*.0042)*dt;T.sl=clamp(T.sl+T.sv*dt,-.32,.32);
+  if(Math.abs(T.sl)<.002&&Math.abs(T.sv)<2e-5){T.sl=0;T.sv=0;return false;}
+  return true;
+}
+function wobble(i,k=1){const T=TUBES[i];if(T){T.sv+=(Math.random()<.5?-1:1)*.0011*k;kick();}}
 // ===== 主循环：有动画时才跑 =====
 function kick(ms=0){R.until=Math.max(R.until,now()+ms);if(!R.raf)R.raf=requestAnimationFrame(frame);}
 function frame(t){
@@ -623,6 +762,7 @@ function frame(t){
     const lt=G.sel===i&&!T.drag?LIFT:0;T.lift+=(lt-T.lift)*Math.min(1,dt*.02);if(Math.abs(lt-T.lift)>.3)active=true;else T.lift=lt;
     const k=Math.min(1,dt*.012);T.x+=(T.hx-T.x)*k;T.y+=(T.hy-T.y)*k;if(Math.abs(T.hx-T.x)+Math.abs(T.hy-T.y)>.5)active=true;else{T.x=T.hx;T.y=T.hy;}
     if(T.drag)active=true;
+    if(slosh(T,t,dt))active=true;
   });
   draw(t);
   if(FX.length||t<R.until||G.sel>=0||(G.hint&&t<G.hint.until))active=true;
@@ -635,7 +775,7 @@ function pourDir(A,B){
   if(s>0&&B.x-H*.95<4)s=-1;else if(s<0&&B.x+H*.95>R.W-4)s=1;
   return s;
 }
-function originFor(P,th,s){const w=GEO.w,H=GEO.H,sx=s*w/2,c=Math.cos(th),n=Math.sin(th);return{ox:P.x-(sx*c+H*n),oy:P.y-(sx*n-H*c)};}
+function originFor(P,th,s,g=GEO){const w=g.w,H=g.H,sx=s*w/2,c=Math.cos(th),n=Math.sin(th);return{ox:P.x-(sx*c+H*n),oy:P.y-(sx*n-H*c)};}
 function startPour(i,j,opt={}){
   const t=now(),s0=G.s,n=pourAmt(s0,i,j),c=topOf(s0.t[i]);
   pushHist();
@@ -652,14 +792,14 @@ function startPour(i,j,opt={}){
   const start=poseOf(A,t);A.drag=null;A.pose={...start};
   const top=A.segs[A.segs.length-1];
   let bt=B.segs[B.segs.length-1];if(!bt||bt.c!==c||bt.hid){bt={c,v:0,hid:false,rev:0};B.segs.push(bt);}
-  const dir=pourDir(A,B),P={x:B.x,y:B.y-GEO.H-GEO.w*.45-4};
-  const A0=volOf(A)*GEO.unitA,th0=dir*Math.max(0,pourAngle(A0)-.05);
+  const gA=geoT(A),gB=geoT(B),dir=pourDir(A,B),P={x:B.x,y:B.y-gB.H-GEO.w*.45-4};
+  const A0=volOf(A)*GEO.unitA,th0=dir*Math.max(0,pourAngle(A0,gA)-.05);
   const dMove=260/sp,dFlow=Math.max(300,n*210)/sp,dBack=250/sp;
-  const fill0=volOf(B)/CAP,fill1=(volOf(B)+n)/CAP;
+  const fill0=volOf(B)/B.cap,fill1=(volOf(B)+n)/B.cap;
   const a={i,j,c,n,t0:t,done:false,stream:null,flowed:false,
     update(t){
       const e=t-this.t0;
-      if(e<dMove){const p=easeIO(e/dMove),o=originFor(P,th0,dir);
+      if(e<dMove){const p=easeIO(e/dMove),o=originFor(P,th0,dir,gA);
         A.pose={ox:start.ox+(o.ox-start.ox)*p,oy:start.oy+(o.oy-start.oy)*p,th:start.th+(th0-start.th)*p};return;}
       if(e<dMove+dFlow){
         const q=(e-dMove)/dFlow;
@@ -667,16 +807,19 @@ function startPour(i,j,opt={}){
         this.stream.head=Math.min(1,(e-dMove)/90);
         const moved=n*q,lag=n*clamp((e-dMove-70)/(dFlow-70),0,1);
         top.v=Math.max(0,top.v0-moved);bt.v=bt.v0+lag;
-        const th=dir*pourAngle(A0-moved*GEO.unitA);A.pose={...originFor(P,th,dir),th};
-        this.lastTh=th;return;
+        const th=dir*pourAngle(A0-moved*GEO.unitA,gA);A.pose={...originFor(P,th,dir,gA),th};
+        this.lastTh=th;
+        // 水柱落到液面溅起水花，目标瓶液面跟着晃
+        if(!reduceMotion&&t-(this.spl||0)>65&&this.stream.head>=1){this.spl=t;const sy=B.y-levelC(0,volOf(B)*GEO.unitA,gB);splash(B.x,sy,PAL[c],q<.15?6:3);B.sv+=(Math.random()-.5)*.0016;}
+        return;
       }
       if(!this.flowed){this.flowed=true;top.v=top.v0-n;bt.v=bt.v0+n;B.busy--;finishTarget(j,c);}
       const e2=e-dMove-dFlow;
       if(this.stream){this.stream.tail=Math.min(1,e2/110);if(e2>110)this.stream=null;}
-      const p=easeIO(Math.min(1,e2/dBack)),o=originFor(P,this.lastTh,dir),hx=A.x,hy=A.y;
+      const p=easeIO(Math.min(1,e2/dBack)),o=originFor(P,this.lastTh,dir,gA),hx=A.x,hy=A.y;
       A.pose={ox:o.ox+(hx-o.ox)*p,oy:o.oy+(hy-o.oy)*p,th:this.lastTh*(1-p)};
       if(e2>=dBack){
-        this.done=true;A.pose=null;A.lift=0;A.busy--;
+        this.done=true;A.pose=null;A.lift=0;A.busy--;wobble(i,.7);
         const old=A.segs;A.segs=segsOf(i);
         if(revealed){const tp=A.segs[A.segs.length-1];if(tp)tp.rev=now();sfx.reveal();burst(A.x,A.y-GEO.H*.4,'#fff',10,.6);}
         afterAnims();
@@ -697,6 +840,9 @@ function finishTarget(j,c){
     burst(B.x,B.y-GEO.H,PAL[c],22,1);
     if(G.combo>=2)floatText(B.x,B.y-GEO.H-34,`连成 ×${G.combo}`,'#ffe08a');
     kick(1400);
+    // 凑满一瓶后，够数的冰冻瓶化开
+    TUBES.forEach((T,k)=>{if(T.frozen&&!iceLeft(G.s,k)){T.frozen=false;T.thawT=t+250;
+      setTimeout(()=>{sfx.thaw();burst(T.x,T.y-geoT(T).H*.5,'#cfeaff',26,.8);T.shakeT=now();kick(700);},250);}});
   }
 }
 function afterAnims(){
@@ -719,7 +865,10 @@ function autoStep(){
   let issued=false;
   for(const ks of by.values()){
     if(ks.length<2)continue;
-    const tgt=ks.reduce((a,b)=>s.t[b].length>s.t[a].length?b:a);
+    // 往普通瓶里并；这种颜色全在小瓶里时，先倒进一个普通空瓶
+    const big=ks.filter(k=>capOf(s,k)>=CAP);
+    const tgt=big.length?big.reduce((a,b)=>s.t[b].length>s.t[a].length?b:a):s.t.findIndex((x,k)=>!x.length&&capOf(s,k)>=CAP&&!iceLeft(s,k));
+    if(tgt<0)continue;
     const src=ks.find(k=>k!==tgt&&!TUBES[k].busy);
     if(src!==undefined&&!TUBES[tgt].busy&&canPour(s,src,tgt)){startPour(src,tgt,{auto:true,speed:1.45});issued=true;break;}
   }
@@ -730,7 +879,7 @@ function autoStep(){
 function solvable(s,cap=6000){const r=solve(s,cap,2.5);return r.ok||r.capped;}
 function checkDead(){
   if(G.anims.length||G.auto||G.won||isSolved(G.s)||!G.active)return;
-  const s=G.s,stuck=!legalMoves(s).some(([i,j])=>!(isMono(s.t[i])&&!s.t[j].length));
+  const s=G.s,stuck=!usefulMoves(s).length;
   let dead=stuck;
   if(!dead&&casual()){const r=solve(s,6000,3);dead=!r.ok&&!r.capped;}
   if(dead)showRescue(stuck);
@@ -749,7 +898,8 @@ function hideRescue(){$('rescue').hidden=true;G.rescue=null;}
 function pushHist(){G.hist.push({s:cpS(G.s),hid:G.hid.map(x=>x.slice()),moves:G.moves});}
 function restore(k){
   const h=G.hist[k];G.hist.length=k;G.s=cpS(h.s);G.hid=h.hid.map(x=>x.slice());G.moves=h.moves;
-  TUBES.forEach((T,i)=>{T.segs=segsOf(i);T.doneT=isDone(G.s.t[i],CAP)?(T.doneT||-1e9):0;T.shakeT=now()-120;});
+  TUBES.forEach((T,i)=>{T.segs=segsOf(i);T.doneT=isDone(G.s.t[i],CAP)?(T.doneT||-1e9):0;T.shakeT=now()-120;
+    if(iceLeft(G.s,i)&&!T.frozen){T.frozen=true;T.thawT=0;}});
   G.sel=-1;G.hint=null;G.auto=false;hud();kick(400);
 }
 function idle(){return!G.anims.length&&!G.auto&&!G.won&&G.active;}
@@ -774,8 +924,8 @@ function useHint(){
 function useTube(){
   if(!idle())return;
   if(G.added>=G.tools.tube){toast(G.tools.tube===1?'每关只能加一个空瓶':`每关最多加 ${G.tools.tube} 个空瓶`);return;}
-  G.added++;G.s.t.push([]);G.hid.push([]);
-  for(const h of G.hist){h.s.t.push([]);h.hid.push([]);}
+  G.added++;G.s=addEmpty(G.s);G.hid.push([]);
+  for(const h of G.hist){h.s=addEmpty(h.s);h.hid.push([]);}
   const T=newTube(G.s.t.length-1);TUBES.push(T);layout(true);T.x=T.hx;T.y=T.hy;T.shakeT=now()-100;
   sfx.tube();hideRescue();hud();burst(T.hx,T.hy-GEO.H*.5,'#ffffff',14,.7);
 }
@@ -799,7 +949,10 @@ const TIPS={
   3:{challenge:'卡住了可以撤销，提示会告诉你下一步',casual:'想倒到指定的瓶子，直接拖过去'},
   4:{both:'实在转不开，可以加一个空瓶',pulse:'tube'},
   8:{both:'问号要等上面倒走，才会显出颜色'},
+  18:{both:'冰冻瓶上的数字：再凑满几瓶，冰就化了'},
+  34:{both:'小瓶只装 2 格，过关时要倒空'},
 };
+const INTRO={18:['新玩法 · 冰冻瓶','先凑满别的颜色，冰才会化开'],34:['新玩法 · 小瓶','只装 2 格，过关时要倒空']};
 let tipH=0;
 function tip(text,ms=0){const el=$('tip');clearTimeout(tipH);if(!text){el.classList.add('hide');return;}
   el.firstChild.textContent=text;el.classList.remove('hide');if(ms)tipH=setTimeout(()=>el.classList.add('hide'),ms);}
@@ -809,7 +962,7 @@ function updateGuide(){
   const [a,b]=G.script[G.step],txt=GUIDE[rules()][G.step];
   if(!casual()&&G.sel===a){tip(txt[1]);handAt(b);}else{tip(txt[0]);handAt(a);}
 }
-function mouthOf(i){const T=TUBES[i];return{x:T.hx,y:T.hy-GEO.H*.55};}
+function mouthOf(i){const T=TUBES[i];return{x:T.hx,y:T.hy-geoT(T).H*.55};}
 let handH=0;
 function hand(on){clearInterval(handH);if(!on)$('hand').hidden=true;}
 function handAt(i){hand(null);const el=$('hand'),m=mouthOf(i);el.hidden=false;el.style.transform=`translate(${m.x-10}px,${m.y}px)`;}
@@ -817,10 +970,10 @@ function handPath(i,j){handAt(i);let k=0;handH=setInterval(()=>{if(!G.hint||now(
   const m=mouthOf(++k%2?j:i);$('hand').style.transform=`translate(${m.x-10}px,${m.y}px)`;},800);}
 
 // ===== 操作：点选或拖动；爽玩模式点一下自动找最好的地方倒 =====
-function pickable(i){const t=G.s.t[i];return t.length>0&&!isDone(t,CAP)&&!TUBES[i].busy;}
+function pickable(i){const t=G.s.t[i];return t.length>0&&!isDone(t,CAP)&&!TUBES[i].busy&&!iceLeft(G.s,i);}
 function allows(i,j){if(!G.script||G.step>=G.script.length)return true;const [a,b]=G.script[G.step];return i===a&&(j===undefined||j===b);}
 function nope(i,why){if(i>=0){TUBES[i].shakeT=now();kick(400);}sfx.nope();if(why&&G.L<=4)toast(why,1400);}
-function whyNot(i,j){const a=G.s.t[i],b=G.s.t[j];if(b.length>=CAP)return'这个瓶子满了';if(b.length&&topOf(b)!==topOf(a))return'颜色不一样，倒不进去';return'';}
+function whyNot(i,j){const a=G.s.t[i],b=G.s.t[j];if(iceLeft(G.s,j))return'冰冻瓶还没化开';if(b.length>=capOf(G.s,j))return'这个瓶子满了';if(b.length&&topOf(b)!==topOf(a))return'颜色不一样，倒不进去';return'';}
 // 爽玩：挑一个最好的目标瓶。凑满一瓶 > 倒进同色单色瓶 > 整段倒到同色上 > 倒进空瓶 > 只倒进一部分（会把一段拆开）；
 // 倒完回到走过的局面排最后，免得两个瓶子来回倒；倒完还能解的优先
 function casualTarget(i){
@@ -842,13 +995,14 @@ function casualTarget(i){
 }
 // 点的是没法倒出去的瓶子：找一个能倒进它的
 function casualSource(j){
-  const s=G.s,b=s.t[j];if(!b.length||b.length>=CAP)return-1;let best=-1,bs=-1e9;const seen=new Set(G.hist.map(h=>keyOf(h.s)));
+  const s=G.s,b=s.t[j];if(!b.length||b.length>=capOf(s,j))return-1;let best=-1,bs=-1e9;const seen=new Set(G.hist.map(h=>keyOf(h.s)));
   for(let k=0;k<s.t.length;k++){if(!canPour(s,k,j)||TUBES[k].busy)continue;const amt=pourAmt(s,k,j);
     const sc=(b.length+amt===CAP&&isMono(b)?1000:0)+(amt===runOf(s.t[k])?100:0)+amt-(seen.has(keyOf(applyPour(s,k,j)))?5000:0);if(sc>bs){bs=sc;best=k;}}
   return best;
 }
 function tap(i){
   if(i<0){if(G.sel>=0){G.sel=-1;sfx.put();updateGuide();}return;}
+  if(iceLeft(G.s,i)&&(G.sel<0||casual())){nope(i);toast(`再凑满 ${iceLeft(G.s,i)} 瓶，冰就化了`,1600);return;}
   if(casual()){
     if(G.script&&G.step<G.script.length){if(!allows(i)){nope(i);return;}startPour(i,G.script[G.step][1]);return;}
     if(TUBES[i].busy)return;
@@ -856,10 +1010,10 @@ function tap(i){
     const k=casualSource(i);if(k>=0){startPour(k,i);return;}
     nope(i,G.s.t[i].length?'没有地方能倒':'');return;
   }
-  if(G.sel<0){if(pickable(i)&&allows(i)){G.sel=i;sfx.pick();kick();}else nope(i);updateGuide();return;}
+  if(G.sel<0){if(pickable(i)&&allows(i)){G.sel=i;sfx.pick();wobble(i);}else nope(i);updateGuide();return;}
   if(G.sel===i){G.sel=-1;sfx.put();updateGuide();return;}
   if(canPour(G.s,G.sel,i)&&!TUBES[i].busy&&allows(G.sel,i)){startPour(G.sel,i);return;}
-  if(pickable(i)&&!G.script){G.sel=i;sfx.pick();kick();return;}
+  if(pickable(i)&&!G.script){G.sel=i;sfx.pick();wobble(i);return;}
   nope(i,whyNot(G.sel,i));
 }
 function tubeAt(x,y){
@@ -919,6 +1073,7 @@ function startLevel(L,again,day=null){
   hideRescue();hand(null);tip(null);layout(false);hud();drawClock();
   $('win').hidden=true;$('home').hidden=true;$('app').classList.toggle('hard',hard());
   if(hard()&&!again)banner('困难关','多给 3 次撤销、1 次提示、1 个空瓶');
+  else if(INTRO[L]&&day==null&&!again)banner(...INTRO[L]);
   else if(day!=null&&!again)banner('每日挑战',dayLabel(day,(m,d)=>`${m} 月 ${d} 日 · 今天大家都玩这一局`));
   const T=day==null&&TIPS[L];
   if(G.script)setTimeout(updateGuide,500);
@@ -943,7 +1098,7 @@ function hud(){
 function starsFor(){const m=G.moves,p=G.par||m;if(casual())return m<=Math.ceil(p*1.5)?3:2;return m<=p?3:m<=Math.ceil(p*1.35)?2:1;}
 function winLevel(){
   timerPause();G.active=false;hand(null);tip(null);hideRescue();
-  const st=starsFor(),L=G.L,ms=timeMs();let best='',streak=0;
+  const st=starsFor(),L=G.L,ms=timeMs(),tot0=totalStars();let best='',streak=0;
   if(G.daily!=null){
     const D=SAVE.daily,day=G.daily,r=D.best[day];
     if(D.last!==day){D.streak=D.last===day-1?D.streak+1:1;D.last=day;}streak=D.streak;
@@ -953,6 +1108,9 @@ function winLevel(){
     const P=prog();P.stars[L]=Math.max(P.stars[L]||0,st);P.unlocked=Math.max(P.unlocked,L+1);
     if(!casual()){const r=P.records[L];if(!r||ms<r.ms){P.records[L]={ms,moves:G.moves,at:Date.now()};best=r?'　新纪录！':'';}else best=`　最佳 ${fmt(r.ms)}`;}
   }
+  const tot1=totalStars(),fresh=allItems().filter(x=>x.need>tot0&&x.need<=tot1);
+  G.last={st,ms,moves:G.moves,par:G.par,combo:G.maxCombo,streak,daily:G.daily,L,mode:rules(),hard:hard(),
+    colors:[...new Set(G.s.t.filter(x=>x.length).map(x=>x[0]))]};
   writeSave();sfx.win();confetti();if(hard())setTimeout(confetti,450);buzz([20,40,30]);
   setTimeout(()=>{
     $('winStars').innerHTML=STAR_SVG.repeat(3);
@@ -962,6 +1120,7 @@ function winLevel(){
     if(!casual())parts.push(`用时 <b>${fmt(ms)}</b>${best}`);
     if(G.maxCombo>=2)parts.push(`最高连成 ×${G.maxCombo}`);
     if(streak)parts.push(`已连续打卡 <b>${streak}</b> 天`);
+    if(fresh.length)parts.push(`<span style="color:var(--gold-hi)">解锁新收藏：${fresh.map(x=>x.kind+'「'+x.name+'」').join('、')}</span>`);
     $('winNext').hidden=G.daily!=null;$('winHome').textContent=G.daily!=null?'首页':'关卡';
     $('winInfo').innerHTML=parts.join('<br>');
     $('win').hidden=false;
@@ -981,9 +1140,62 @@ function showHome(){
     const s=P.stars[L]||0;b.innerHTML=`${L}<small>${'★'.repeat(s)}</small>`;b.onclick=()=>{ac();startLevel(L);};grid.appendChild(b);
   }
   $('playBtn').textContent=P.unlocked>1?`继续第 ${P.unlocked} 关`:'开始';
+  const tot=totalStars();$('starTotal').textContent=tot;
+  $('collBtn').classList.toggle('new',allItems().some(x=>x.need>(SAVE.collSeen||0)&&x.need<=tot));
   $('optSound').checked=!SAVE.muted;$('optSym').checked=!!SAVE.sym;
   $('win').hidden=true;$('home').hidden=false;
   setTimeout(()=>{const c=grid.querySelector('.cur');c&&c.scrollIntoView({block:'center'});},30);
+}
+function liqCss(k,c){const L=LIQS.find(x=>x.k===k);return`linear-gradient(90deg,${L.stops.map(([o,m,to])=>(m?mixHex(c,m,to):c)+' '+o*100+'%').join(',')})`;}
+function showColl(){
+  const tot=totalStars();$('collStars').textContent=tot;SAVE.collSeen=tot;writeSave();$('collBtn').classList.remove('new');
+  const fill=(el,list,kind)=>{el.innerHTML='';for(const x of list){const b=document.createElement('button'),lock=tot<x.need;
+    b.className='item'+(SAVE.skin[kind]===x.k?' on':'');b.disabled=lock;
+    const sw=kind==='bg'?`<span class="sw" style="background:radial-gradient(120% 90% at 50% 0%,${x.c[1]},${x.c[0]})"></span>`
+      :`<span class="mt">${[0,6,2].map(c=>`<i style="background:${liqCss(x.k,PAL[c])}${x.k==='neon'?`;box-shadow:0 0 8px ${PAL[c]}`:''}"></i>`).join('')}</span>`;
+    b.innerHTML=`${sw}${x.name}<small>${lock?'★ '+x.need:''}</small>`;
+    b.onclick=()=>{SAVE.skin[kind]=x.k;writeSave();applySkin();sfx.pick();showColl();};el.appendChild(b);}};
+  fill($('collBg'),BGS,'bg');fill($('collLiq'),LIQS,'liq');
+  $('coll').hidden=false;
+}
+// ===== 晒成绩：用画布画一张成绩卡，能调系统分享就分享，不能就长按图片保存 =====
+const STAR_PATH='M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5-4.9-4.6 6.6-.8z';
+function makeCard(r){
+  const W=720,H=960,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const F='"PingFang SC","Microsoft YaHei",system-ui,sans-serif',b=BGS.find(v=>v.k===SAVE.skin.bg)||BGS[0];
+  const bg=x.createRadialGradient(W/2,0,40,W/2,H*.3,H);bg.addColorStop(0,b.c[1]);bg.addColorStop(1,b.c[0]);x.fillStyle=bg;x.fillRect(0,0,W,H);
+  x.textAlign='center';
+  x.fillStyle='#f4f1e8';x.font=`800 46px ${F}`;x.fillText('倒倒乐',W/2,96);
+  const title=r.daily!=null?dayLabel(r.daily,(m,d)=>`每日挑战 · ${m}月${d}日`):`${r.mode==='casual'?'爽玩':'挑战'} · 第 ${r.L} 关`;
+  x.fillStyle='#a9b8c9';x.font=`600 30px ${F}`;x.fillText(title,W/2,150);
+  if(r.hard){x.fillStyle='#f06a5a';x.beginPath();x.roundRect?x.roundRect(W/2-60,170,120,40,20):x.rect(W/2-60,170,120,40);x.fill();
+    x.fillStyle='#fff';x.font=`700 24px ${F}`;x.fillText('困难关',W/2,198);}
+  const star=new Path2D(STAR_PATH);
+  [[-110,72],[0,92],[110,72]].forEach(([dx,sz],k)=>{x.save();x.translate(W/2+dx-sz/2,(k===1?232:246)-sz/2+12);x.scale(sz/24,sz/24);
+    x.fillStyle=k<r.st?'#f6c85a':'rgba(255,255,255,.14)';x.fill(star);x.restore();});
+  x.fillStyle='#a9b8c9';x.font=`500 26px ${F}`;x.fillText(r.mode==='casual'?'步数':'用时',W/2,340);
+  x.fillStyle='#fff';x.font=`800 124px ${F}`;x.fillText(r.mode==='casual'?String(r.moves):fmt(r.ms),W/2,460);
+  const items=[];if(r.mode!=='casual')items.push([String(r.moves),'步数']);items.push([String(r.par),'标准步数']);
+  if(r.combo>=2)items.push(['×'+r.combo,'最高连成']);if(r.daily!=null&&r.streak)items.push([String(r.streak),'连续打卡天数']);
+  items.forEach(([v,l],k)=>{const cx=W/2+(k-(items.length-1)/2)*170;x.fillStyle='#f4f1e8';x.font=`700 46px ${F}`;x.fillText(v,cx,548);
+    x.fillStyle='#a9b8c9';x.font=`500 22px ${F}`;x.fillText(l,cx,582);});
+  // 一排凑满的瓶子
+  const cols=r.colors.slice(0,8),n=cols.length,y0=650,y1=846,tw=46;
+  cols.forEach((col,k)=>{const X=W/2+(k-(n-1)/2)*74,path=()=>{x.beginPath();x.moveTo(X-tw/2,y0);x.lineTo(X-tw/2,y1-tw/2);x.arc(X,y1-tw/2,tw/2,Math.PI,0,true);x.lineTo(X+tw/2,y0);};
+    x.save();path();x.closePath();x.clip();const g=x.createLinearGradient(X-tw/2,0,X+tw/2,0);
+    for(const [o,m,to] of liqOf().stops)g.addColorStop(o,m?mixHex(PAL[col],m,to):PAL[col]);x.fillStyle=g;x.fillRect(X-tw,y0+26,tw*2,y1);x.restore();
+    path();x.strokeStyle='rgba(225,238,255,.75)';x.lineWidth=4;x.stroke();
+    x.fillStyle='#b9824e';x.beginPath();x.roundRect?x.roundRect(X-tw*.42,y0-14,tw*.84,30,7):x.rect(X-tw*.42,y0-14,tw*.84,30);x.fill();});
+  x.fillStyle='rgba(244,241,232,.75)';x.font=`600 26px ${F}`;x.fillText(r.daily!=null?'今天大家都玩这一局，来比比':'换你来试试',W/2,902);
+  x.fillStyle='rgba(169,184,201,.7)';x.font=`500 22px ${F}`;x.fillText('jarliao.github.io/daodaole',W/2,938);
+  return c;
+}
+function openShare(){
+  const r=G.last;if(!r)return;const c=makeCard(r),url=c.toDataURL('image/png'),go=$('shareGo');
+  $('shareImg').src=url;$('shareSave').href=url;go.hidden=true;
+  if(navigator.canShare)c.toBlob(b=>{if(!b)return;const f=new File([b],'倒倒乐成绩.png',{type:'image/png'});
+    try{if(navigator.canShare({files:[f]})){go.hidden=false;go.onclick=()=>navigator.share({files:[f],title:'倒倒乐'}).catch(()=>{});}}catch(e){}});
+  $('share').hidden=false;
 }
 let toastH=0;
 function toast(s,ms=2000){const t=$('toast');t.textContent=s;t.classList.remove('hide');clearTimeout(toastH);toastH=setTimeout(()=>t.classList.add('hide'),ms);}
@@ -1003,10 +1215,14 @@ $('winNext').onclick=()=>startLevel(G.L+1);
 $('winAgain').onclick=()=>startLevel(G.L,true,G.daily);
 $('dailyBtn').onclick=()=>{ac();startLevel(0,false,today());};
 $('winHome').onclick=showHome;
+$('collBtn').onclick=()=>{ac();showColl();};
+$('collClose').onclick=()=>{$('coll').hidden=true;showHome();};
+$('winShare').onclick=()=>{ac();openShare();};
+$('shareClose').onclick=()=>{$('share').hidden=true;};
 addEventListener('resize',()=>{if(TUBES.length)layout(false);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)timerPause();else if(G.active&&G.moves&&!G.won)timerStart();});
 
-loadSave();G.mode=SAVE.mode;SFX.on=!SAVE.muted;G.sym=!!SAVE.sym;
+loadSave();G.mode=SAVE.mode;SFX.on=!SAVE.muted;G.sym=!!SAVE.sym;applySkin();
 $('hand').innerHTML=HAND_SVG;
 // 首页背后先摆一关当背景
 startLevel(Math.min(prog().unlocked,60),true);showHome();

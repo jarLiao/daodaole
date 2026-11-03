@@ -26,7 +26,7 @@ for (const mode of ['challenge', 'casual'])
       slow = Math.max(slow, performance.now() - t0);
       if (!E.solve(hist[back], 20000, 2).ok) { console.log(`${tag}：退回后仍无解`); fail++; }
       if (back < hist.length - 1) rescued++;
-      const plus = { cap: s.cap, t: [...s.t.map(x => x.slice()), []] }, pr = E.solve(plus, 20000, 2);
+      const plus = E.addEmpty(s), pr = E.solve(plus, 20000, 2);
       if (pr.ok && !E.isSolved(replay(plus, pr.path) || plus)) { console.log(`${tag}：加瓶后解不合法`); fail++; }
     }
   }
