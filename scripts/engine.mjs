@@ -9,6 +9,6 @@ export const GAME = join(ROOT, 'src', 'game.html');
 export function loadEngine() {
   const code = readFileSync(GAME, 'utf8').split('/*ENGINE-START*/')[1].split('/*ENGINE-END*/')[0];
   const names = ['CAP', 'rngOf', 'cpS', 'canPour', 'pourAmt', 'applyPour', 'isSolved', 'isDone', 'isMono', 'legalMoves', 'usefulMoves',
-    'onlyMerges', 'keyOf', 'solve', 'levelParams', 'generateSeed', 'generate', 'deadStats', 'scoreLevel', 'LEVEL_SEEDS', 'CASUAL_SEEDS'];
+    'onlyMerges', 'keyOf', 'solve', 'levelParams', 'generateSeed', 'generate', 'generateDaily', 'dailyParams', 'deadStats', 'scoreLevel', 'LEVEL_SEEDS', 'CASUAL_SEEDS'];
   return new Function(`${code};return{${names.join(',')}};`)();
 }

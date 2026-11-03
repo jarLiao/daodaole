@@ -22,6 +22,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 .chip{font-size:12px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.1);color:var(--ink2)}
 .chip.challenge{background:rgba(240,106,90,.18);color:#ffb3a8}
 .chip.casual{background:rgba(56,198,184,.18);color:#9ff0e6}
+.chip.hard{background:var(--red);color:#fff;font-weight:700}
+.chip.daily{background:rgba(246,200,90,.2);color:var(--gold-hi)}
+#app.hard{--bg1:#3e1f2c}
+#banner{position:absolute;left:0;right:0;top:34%;z-index:4;text-align:center;pointer-events:none;transition:opacity .4s,transform .4s}
+#banner b{display:block;font-size:40px;letter-spacing:8px;color:#fff;text-shadow:0 0 18px rgba(240,106,90,.9),0 3px 0 #9c2f24}
+#banner span{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:99px;background:rgba(10,20,34,.75);font-size:14px;color:var(--ink2)}
+#banner.hide{opacity:0;transform:scale(1.15)}
 .stats{display:flex;gap:10px;font-variant-numeric:tabular-nums;color:var(--ink2);font-size:14px}
 .stats b{color:var(--ink);font-weight:600}
 #clock.pen{color:var(--red);transition:none}
@@ -76,12 +83,24 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 .mode b{display:block;font-size:17px}
 .mode small{color:var(--ink2);font-size:12px}
 .mode.on{border-color:var(--accent);background:rgba(56,198,184,.12)}
+.dcard{display:flex;align-items:center;gap:12px;border-radius:16px;padding:10px 14px;text-align:left;
+  background:linear-gradient(100deg,rgba(246,200,90,.16),rgba(246,200,90,.04));border:1.5px solid rgba(246,200,90,.5)}
+.dcard .cal{flex:none;width:42px;height:46px;border-radius:10px;background:#f4f1e8;color:#16263a;display:flex;flex-direction:column;overflow:hidden;text-align:center}
+.dcard .cal small{display:block;background:var(--red);color:#fff;font-size:11px;line-height:16px}
+.dcard .cal b{font-size:20px;line-height:30px}
+.dcard div{flex:1;min-width:0}
+.dcard div b{display:block;font-size:17px}
+.dcard div small{color:var(--ink2);font-size:12px}
+.dcard em{flex:none;font-style:normal;font-size:13px;font-weight:700;color:var(--gold-hi)}
+.dcard.done em{color:var(--ink2);font-weight:400}
 .mode[data-mode=challenge].on{border-color:var(--red);background:rgba(240,106,90,.12)}
 .grid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:2px 2px 8px;align-content:start}
 .cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid var(--line);display:flex;flex-direction:column;
   align-items:center;justify-content:center;font-weight:700;font-size:17px}
 .cell small{font-size:10px;letter-spacing:1px;color:var(--gold);height:12px;line-height:12px}
 .cell.cur{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.cell.hard{position:relative;background:rgba(240,106,90,.16);border-color:rgba(240,106,90,.55)}
+.cell.hard::after{content:"难";position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:99px;background:var(--red);color:#fff;font:700 10px/16px system-ui}
 .cell[disabled]{opacity:.32}
 .opts{display:flex;gap:16px;justify-content:center;color:var(--ink2);font-size:14px}
 .opts label{display:flex;align-items:center;gap:6px}
@@ -104,7 +123,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
     <div class="lvl"><b id="lvlNum">第 1 关</b><span id="modeChip" class="chip">爽玩</span></div>
     <div class="stats"><span id="clock">0:00</span><span><b id="moves">0</b> 步</span></div>
   </header>
-  <div id="stage"><canvas id="cv"></canvas><div id="tip" class="hide"><span></span></div><div id="hand" hidden></div></div>
+  <div id="stage"><canvas id="cv"></canvas><div id="banner" class="hide"><b></b><span></span></div><div id="tip" class="hide"><span></span></div><div id="hand" hidden></div></div>
   <nav id="tools">
     <button class="tool" data-tool="undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>撤销<i></i></button>
     <button class="tool" data-tool="restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>重来<i></i></button>
@@ -124,12 +143,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
         <path d="M14 34h12v10a6 6 0 0 1-12 0z" fill="#e8463a"/><path d="M14 24h12v10H14z" fill="#f6d33c"/></g>
       <g transform="rotate(10 44 40)"><path d="M36 14v30a8 8 0 0 0 16 0V14" fill="rgba(255,255,255,.08)" stroke="#e8f2ff" stroke-width="2.4"/>
         <path d="M38 30h12v14a6 6 0 0 1-12 0z" fill="#3d7bf0"/><path d="M38 22h12v8H38z" fill="#33c4c0"/></g></svg><h1>倒倒乐</h1></div>
+    <button class="dcard" id="dailyBtn"><span class="cal"><small id="dyMon"></small><b id="dyDay"></b></span><div><b>每日挑战</b><small id="dyInfo"></small></div><em id="dyGo"></em></button>
     <div class="modes"><button class="mode" data-mode="casual"><b>爽玩</b><small>点哪倒哪 · 不计时</small></button>
       <button class="mode" data-mode="challenge"><b>挑战</b><small>计时 · 道具有限</small></button></div>
     <button class="btn primary" id="playBtn" style="flex:none;height:52px;font-size:17px">开始</button>
     <div class="grid" id="grid"></div>
     <div class="opts"><label><input type="checkbox" id="optSound">声音</label><label><input type="checkbox" id="optSym">颜色加图案</label></div>
-    <p class="ver">v1.0 · 每关都保证有解</p>
+    <p class="ver">v1.1 · 每关都保证有解</p>
   </div></div>
 </div>
 <script>
@@ -194,7 +214,8 @@ function solve(s0,maxNodes=60000,w=2){
 }
 
 // ===== 关卡参数：第 1 关教学，第 2 关巩固，第 3 关开始有挑战；之后「紧—松—中」循环，颜色逐渐变多 =====
-// pick 是离线选关时在一批候选里取第几百分位的难度（1 最难，0 最容易）；adj 是开局同瓶相邻同色的上限
+// pick 是离线选关时在一批候选里取第几百分位的难度（1 最难，0 最容易）；adj 是开局同瓶相邻同色的上限；
+// hard 是「紧」关里不带问号的那些，界面上标成困难关、多给道具
 function baseParams(L){
   if(L===1)return{fixed:[[0,0,6,6],[6,6,0,0],[]],colors:2,empty:1,pick:.5};
   if(L===2)return{colors:4,empty:2,adj:5,pick:.1};
@@ -202,9 +223,9 @@ function baseParams(L){
   if(L===4)return{colors:6,empty:2,adj:3,pick:.4};
   if(L===5)return{colors:7,empty:2,adj:2,pick:.8};
   if(L===6)return{colors:7,empty:2,adj:3,pick:.2};
-  if(L===7)return{colors:8,empty:2,adj:2,pick:.8};
+  if(L===7)return{colors:8,empty:2,adj:2,pick:.8,hard:true};
   const colors=Math.min(12,8+Math.floor((L-8)/6)),hidden=L===8||(L>8&&L%4===0),k=L%3;
-  if(k===2)return{colors,empty:2,adj:1,hidden,pick:hidden?.5:.85};
+  if(k===2)return{colors,empty:2,adj:1,hidden,pick:hidden?.5:.85,hard:!hidden&&L>=11};
   if(k===0)return{colors:colors-1,empty:2,adj:3,hidden,pick:.15};
   return{colors,empty:2,adj:2,hidden,pick:hidden?.3:.5};
 }
@@ -212,19 +233,23 @@ function baseParams(L){
 function levelParams(L,mode){
   const P=baseParams(L);if(mode!=='casual'||P.fixed)return P;
   const colors=Math.min(10,Math.max(3,P.colors-(L<=4?1:2)));
-  return{...P,colors,empty:colors>=8?3:2,adj:P.adj+2,hidden:false,pick:.05};
+  return{...P,colors,empty:colors>=8?3:2,adj:P.adj+2,hidden:false,pick:.05,hard:false};
 }
 function generateSeed(L,seed,mode='challenge'){
   const P=levelParams(L,mode);
   if(P.fixed)return{s:{cap:CAP,t:P.fixed.map(x=>x.slice())},P,seed};
   const rng=rngOf(seed*7919+L*104729+(mode==='casual'?17:0));
+  const t=deal(P,rng);return t&&{s:{cap:CAP,t},P,seed};
+}
+// 按参数随机摆一局：顶上不能已经连着 3 格同色，同瓶相邻同色不超过 adj
+function deal(P,rng){
   const cols=shuffleIn([...Array(12).keys()],rng).slice(0,P.colors);
   for(let a=0;a<400;a++){
     const u=[];for(const c of cols)for(let k=0;k<CAP;k++)u.push(c);shuffleIn(u,rng);
     const t=[];for(let i=0;i<P.colors;i++)t.push(u.slice(i*CAP,i*CAP+CAP));for(let e=0;e<P.empty;e++)t.push([]);
     let adj=0,bad=false;
     for(const x of t){if(x.length&&runOf(x)>=3)bad=true;for(let k=1;k<x.length;k++)if(x[k]===x[k-1])adj++;}
-    if(!bad&&adj<=P.adj)return{s:{cap:CAP,t},P,seed};
+    if(!bad&&adj<=P.adj)return t;
   }
   return null;
 }
@@ -253,8 +278,8 @@ function scoreLevel(g,n=12){
   const r=solve(g.s,80000,1.5);if(!r.ok)return null;
   return{...deadStats(g.s,n,g.seed),par:r.path.length};
 }
-/*SEEDS-START*/const LEVEL_SEEDS=[];/*SEEDS-END*/
-/*CASUAL-SEEDS-START*/const CASUAL_SEEDS=[];/*CASUAL-SEEDS-END*/
+/*SEEDS-START*/const LEVEL_SEEDS=[[1,3],[3,11],[18,19],[6,19],[16,23],[9,21],[8,27],[15,28],[11,25],[10,28],[5,29],[20,25],[10,27],[19,33],[16,28],[11,31],[12,35],[22,26],[12,29],[15,38],[12,31],[13,36],[20,34],[17,30],[11,32],[13,41],[14,35],[20,36],[11,38],[3,35],[19,36],[10,43],[22,36],[24,39],[19,41],[20,39],[2,45],[18,43],[1,35],[11,41],[22,41],[6,36],[13,40],[23,47],[23,37],[14,42],[1,42],[16,36],[11,41],[12,42],[20,38],[24,40],[18,41],[5,37],[8,43],[24,44],[21,37],[2,43],[1,43],[21,38]];/*SEEDS-END*/
+/*CASUAL-SEEDS-START*/const CASUAL_SEEDS=[[1,3],[2,9],[4,16],[5,15],[7,17],[3,15],[2,20],[6,18],[2,16],[12,20],[11,18],[2,17],[10,17],[1,24],[9,17],[5,23],[2,22],[5,19],[11,24],[2,26],[23,25],[2,27],[2,28],[7,20],[2,26],[10,30],[2,28],[2,29],[4,31],[4,27],[4,32],[13,34],[2,30],[10,34],[18,35],[5,33],[15,35],[15,32],[3,32],[11,32],[14,34],[3,31],[7,32],[6,36],[3,33],[10,32],[13,33],[14,30],[4,31],[8,33],[3,31],[12,35],[13,37],[7,29],[10,32],[22,33],[2,30],[8,33],[9,33],[7,30]];/*CASUAL-SEEDS-END*/
 // 表里存 [种子, 标准步数]；超出表的关卡现场挑一个有解的
 function generate(L,mode='challenge'){
   const tab=mode==='casual'?CASUAL_SEEDS:LEVEL_SEEDS,e=tab[L-1];
@@ -262,6 +287,19 @@ function generate(L,mode='challenge'){
   for(let seed=1;seed<60;seed++){
     const g=generateSeed(L,seed,mode);if(!g)continue;
     const r=solve(g.s,40000,2);if(r.ok)return{...g,par:r.path.length};
+  }
+  return null;
+}
+// 每日挑战：按日期（本地日期折成天数）出题，同一天所有人是同一局。平日 10 色，周末 11 色带问号
+function dailyParams(day){
+  const wd=(day+4)%7,weekend=wd===0||wd===6;
+  return{colors:weekend?11:10,empty:2,adj:2,hidden:weekend};
+}
+function generateDaily(day){
+  const P=dailyParams(day);
+  for(let seed=1;seed<40;seed++){
+    const t=deal(P,rngOf(day*2654435+seed*7919+99991));if(!t)continue;
+    const s={cap:CAP,t},r=solve(s,80000,1.5);if(r.ok)return{s,P,seed,par:r.path.length};
   }
   return null;
 }
@@ -323,6 +361,8 @@ const sfx={
   undo(){tone(620,.14,'sine',.07,0,.55);},
   hint(){tone(1046,.12,'sine',.06);tone(1318,.16,'sine',.05,.08);},
   tube(){tone(880,.1,'sine',.06);tone(1320,.14,'sine',.05,.07);noise(.08,.12,3000,2000);},
+  // 困难关开场：两声低沉的鼓
+  drum(){tone(110,.28,'triangle',.16,0,.5);tone(98,.36,'triangle',.16,.22,.5);noise(.12,.08,400,150);},
   win(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.4,'triangle',.1,i*.085));},
 };
 function buzz(ms){try{if(navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive))navigator.vibrate(ms);}catch(e){}}
@@ -373,19 +413,26 @@ function pourAngle(A){const x=clamp(A/GEO.capA,0,1)*40,i=Math.min(39,Math.floor(
 
 // ===== 存档（只存在本机浏览器）。两个模式分开记进度；挑战模式按关保存最佳用时，留给以后的排行榜 =====
 const SAVE_KEY='daodaole-v1';
-const freshSave=()=>({mode:'casual',muted:false,sym:false,casual:{unlocked:1,stars:{}},challenge:{unlocked:1,stars:{},records:{}}});
+const freshSave=()=>({mode:'casual',muted:false,sym:false,casual:{unlocked:1,stars:{}},challenge:{unlocked:1,stars:{},records:{}},
+  daily:{best:{},streak:0,last:-1}});
 let SAVE=freshSave();
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object'){const f=freshSave();
-  SAVE={...f,...s,casual:{...f.casual,...s.casual},challenge:{...f.challenge,...s.challenge}};}}catch(e){}}
+  SAVE={...f,...s,casual:{...f.casual,...s.casual},challenge:{...f.challenge,...s.challenge},daily:{...f.daily,...s.daily}};}}catch(e){}}
 function writeSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}}
 
 // ===== 游戏状态 =====
-const TOOLS={challenge:{undo:5,hint:3,tube:1},casual:{undo:Infinity,hint:Infinity,tube:2}};
+const TOOLS={challenge:{undo:5,hint:3,tube:1},casual:{undo:Infinity,hint:Infinity,tube:2}},HARD_BONUS={undo:3,hint:1,tube:1};
 const PENALTY_MS=20000,COMBO_MS=4500,LIFT=22;
-const G={mode:'casual',L:1,s:null,hid:[],hist:[],moves:0,sel:-1,anims:[],auto:false,won:false,active:false,
+const G={mode:'casual',daily:null,L:1,s:null,hid:[],hist:[],moves:0,sel:-1,anims:[],auto:false,won:false,active:false,
   combo:0,maxCombo:0,lastDone:0,tools:{},added:0,penalty:0,ms:0,t0:0,running:false,script:null,step:0,hint:null,rescue:null,introT:0};
 let TUBES=[];
-const casual=()=>G.mode==='casual';
+// 每日挑战不管首页选的哪种模式，都按挑战规则（计时、道具有限）
+const rules=()=>G.daily!=null?'challenge':G.mode;
+const casual=()=>rules()==='casual';
+const hard=()=>!!(G.P&&G.P.hard);
+// 本地日期折成天数，作为每日挑战的题号
+const today=()=>{const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);};
+const dayLabel=(day,f)=>{const d=new Date(day*864e5);return f(d.getUTCMonth()+1,d.getUTCDate());};
 const prog=()=>SAVE[G.mode];
 const cv=$('cv'),ctx=cv.getContext('2d'),stage=$('stage');
 const R={raf:0,until:0,last:0,dpr:1,W:0,H:0,sp:60,rows:1};
@@ -732,7 +779,7 @@ function useTube(){
   const T=newTube(G.s.t.length-1);TUBES.push(T);layout(true);T.x=T.hx;T.y=T.hy;T.shakeT=now()-100;
   sfx.tube();hideRescue();hud();burst(T.hx,T.hy-GEO.H*.5,'#ffffff',14,.7);
 }
-function restart(){if(G.anims.length)return;startLevel(G.L,true);}
+function restart(){if(G.anims.length)return;startLevel(G.L,true,G.daily);}
 
 // ===== 计时（只在挑战模式显示） =====
 let clockH=0;
@@ -759,7 +806,7 @@ function tip(text,ms=0){const el=$('tip');clearTimeout(tipH);if(!text){el.classL
 function updateGuide(){
   if(!G.script||!G.active||!$('home').hidden)return;
   if(G.step>=G.script.length){hand(null);if(G.step===G.script.length){G.step++;tip('只剩单色时，会自动帮你收尾',3200);}return;}
-  const [a,b]=G.script[G.step],txt=GUIDE[G.mode][G.step];
+  const [a,b]=G.script[G.step],txt=GUIDE[rules()][G.step];
   if(!casual()&&G.sel===a){tip(txt[1]);handAt(b);}else{tip(txt[0]);handAt(a);}
 }
 function mouthOf(i){const T=TUBES[i];return{x:T.hx,y:T.hy-GEO.H*.55};}
@@ -859,24 +906,35 @@ function returnHome(T,from){
 }
 
 // ===== 关卡流程 =====
-function startLevel(L,again){
-  const g=generate(L,G.mode);if(!g){toast('关卡生成失败');return;}
+// day 不为空时开的是那一天的每日挑战
+function startLevel(L,again,day=null){
+  const g=day!=null?generateDaily(day):generate(L,G.mode);if(!g){toast('关卡生成失败');return;}
+  G.daily=day;
+  const tools={...TOOLS[rules()]};if(g.P.hard)for(const k in HARD_BONUS)tools[k]+=HARD_BONUS[k];
   Object.assign(G,{L,P:g.P,par:g.par,s:cpS(g.s),hist:[],moves:0,sel:-1,anims:[],auto:false,won:false,active:true,combo:0,maxCombo:0,lastDone:0,
-    tools:{...TOOLS[G.mode]},added:0,penalty:0,ms:0,running:false,script:L===1?[[0,2],[1,0]]:null,step:0,hint:null,introT:now()});
+    tools,added:0,penalty:0,ms:0,running:false,script:L===1&&day==null?[[0,2],[1,0]]:null,step:0,hint:null,introT:now()});
   G.hid=G.s.t.map(t=>t.map((_,k)=>!!g.P.hidden&&k<t.length-runOf(t)));
   clearInterval(clockH);
   TUBES=G.s.t.map((_,i)=>newTube(i));
   hideRescue();hand(null);tip(null);layout(false);hud();drawClock();
-  $('win').hidden=true;$('home').hidden=true;
-  const T=TIPS[L];
+  $('win').hidden=true;$('home').hidden=true;$('app').classList.toggle('hard',hard());
+  if(hard()&&!again)banner('困难关','多给 3 次撤销、1 次提示、1 个空瓶');
+  else if(day!=null&&!again)banner('每日挑战',dayLabel(day,(m,d)=>`${m} 月 ${d} 日 · 今天大家都玩这一局`));
+  const T=day==null&&TIPS[L];
   if(G.script)setTimeout(updateGuide,500);
   else if(T){const text=T[G.mode]||T.both;if(text)setTimeout(()=>{if(G.active&&G.L===L&&$('home').hidden)tip(text,5200);},400);
     if(T.pulse){const b=document.querySelector(`[data-tool=${T.pulse}]`);b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');}}
   kick(900);
 }
+let bannerH=0;
+function banner(title,sub){const el=$('banner');el.firstChild.textContent=title;el.lastChild.textContent=sub;
+  el.classList.remove('hide');clearTimeout(bannerH);bannerH=setTimeout(()=>el.classList.add('hide'),1800);if(hard())sfx.drum();}
 function hud(){
-  $('lvlNum').textContent=`第 ${G.L} 关`;
-  const chip=$('modeChip');chip.textContent=casual()?'爽玩':'挑战';chip.className='chip '+G.mode;
+  $('lvlNum').textContent=G.daily!=null?dayLabel(G.daily,(m,d)=>`${m}月${d}日`):`第 ${G.L} 关`;
+  const chip=$('modeChip');
+  if(G.daily!=null){chip.textContent='每日挑战';chip.className='chip daily';}
+  else if(hard()){chip.textContent='困难';chip.className='chip hard';}
+  else{chip.textContent=casual()?'爽玩':'挑战';chip.className='chip '+G.mode;}
   $('moves').textContent=G.moves;$('clock').hidden=casual();
   const badge=(k,v)=>{const el=document.querySelector(`[data-tool=${k}] i`);el.className='';
     if(v===Infinity)el.textContent='';else if(v>0)el.textContent=v;else if(k==='tube')el.textContent='0';else{el.textContent='+20s';el.className='pen';}};
@@ -885,29 +943,41 @@ function hud(){
 function starsFor(){const m=G.moves,p=G.par||m;if(casual())return m<=Math.ceil(p*1.5)?3:2;return m<=p?3:m<=Math.ceil(p*1.35)?2:1;}
 function winLevel(){
   timerPause();G.active=false;hand(null);tip(null);hideRescue();
-  const st=starsFor(),P=prog(),L=G.L,ms=timeMs();
-  P.stars[L]=Math.max(P.stars[L]||0,st);P.unlocked=Math.max(P.unlocked,L+1);
-  let best='';
-  if(!casual()){const r=P.records[L];if(!r||ms<r.ms){P.records[L]={ms,moves:G.moves,at:Date.now()};best=r?'　新纪录！':'';}else best=`　最佳 ${fmt(r.ms)}`;}
-  writeSave();sfx.win();confetti();buzz([20,40,30]);
+  const st=starsFor(),L=G.L,ms=timeMs();let best='',streak=0;
+  if(G.daily!=null){
+    const D=SAVE.daily,day=G.daily,r=D.best[day];
+    if(D.last!==day){D.streak=D.last===day-1?D.streak+1:1;D.last=day;}streak=D.streak;
+    if(!r||ms<r.ms){D.best[day]={ms,moves:G.moves,stars:Math.max(st,r?r.stars:0),at:Date.now()};best=r?'　新纪录！':'';}
+    else{r.stars=Math.max(r.stars,st);best=`　最佳 ${fmt(r.ms)}`;}
+  }else{
+    const P=prog();P.stars[L]=Math.max(P.stars[L]||0,st);P.unlocked=Math.max(P.unlocked,L+1);
+    if(!casual()){const r=P.records[L];if(!r||ms<r.ms){P.records[L]={ms,moves:G.moves,at:Date.now()};best=r?'　新纪录！':'';}else best=`　最佳 ${fmt(r.ms)}`;}
+  }
+  writeSave();sfx.win();confetti();if(hard())setTimeout(confetti,450);buzz([20,40,30]);
   setTimeout(()=>{
     $('winStars').innerHTML=STAR_SVG.repeat(3);
     [...$('winStars').children].forEach((el,k)=>setTimeout(()=>el.classList.toggle('on',k<st),200+k*180));
-    $('winTitle').textContent=st===3?'完美':st===2?'漂亮':'过关';
+    $('winTitle').textContent=hard()?'攻克困难关！':G.daily!=null?'今日挑战完成':st===3?'完美':st===2?'漂亮':'过关';
     const parts=[`<b>${G.moves}</b> 步（标准 ${G.par}）`];
     if(!casual())parts.push(`用时 <b>${fmt(ms)}</b>${best}`);
     if(G.maxCombo>=2)parts.push(`最高连成 ×${G.maxCombo}`);
+    if(streak)parts.push(`已连续打卡 <b>${streak}</b> 天`);
+    $('winNext').hidden=G.daily!=null;$('winHome').textContent=G.daily!=null?'首页':'关卡';
     $('winInfo').innerHTML=parts.join('<br>');
     $('win').hidden=false;
   },700);
 }
 function showHome(){
-  timerPause();G.active=false;hand(null);
+  timerPause();G.active=false;hand(null);$('app').classList.remove('hard');clearTimeout(bannerH);$('banner').classList.add('hide');
+  const day=today(),D=SAVE.daily,r=D.best[day],alive=D.last>=day-1?D.streak:0;
+  $('dyMon').textContent=dayLabel(day,m=>`${m}月`);$('dyDay').textContent=dayLabel(day,(m,d)=>d);
+  $('dyInfo').textContent=(r?`今日最佳 ${fmt(r.ms)}`:dailyParams(day).hidden?'周末加难 · 带问号':'今天大家都玩这一局')+(alive?` · 连续 ${alive} 天`:'');
+  $('dailyBtn').classList.toggle('done',!!r);$('dyGo').textContent=r?'再刷一次':'开始';
   document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('on',b.dataset.mode===G.mode));
   const P=prog(),grid=$('grid');grid.innerHTML='';
   const cur=Math.min(P.unlocked,60);
   for(let L=1;L<=Math.max(60,P.unlocked);L++){
-    const b=document.createElement('button');b.className='cell'+(L===cur?' cur':'');b.disabled=L>P.unlocked;
+    const b=document.createElement('button');b.className='cell'+(L===cur?' cur':'')+(levelParams(L,G.mode).hard?' hard':'');b.disabled=L>P.unlocked;
     const s=P.stars[L]||0;b.innerHTML=`${L}<small>${'★'.repeat(s)}</small>`;b.onclick=()=>{ac();startLevel(L);};grid.appendChild(b);
   }
   $('playBtn').textContent=P.unlocked>1?`继续第 ${P.unlocked} 关`:'开始';
@@ -930,7 +1000,8 @@ $('rsBack').onclick=()=>{if(!G.rescue)return;const n=G.rescue.n;useUndo(n);};
 $('rsTube').onclick=useTube;
 $('rsClose').onclick=hideRescue;
 $('winNext').onclick=()=>startLevel(G.L+1);
-$('winAgain').onclick=()=>startLevel(G.L,true);
+$('winAgain').onclick=()=>startLevel(G.L,true,G.daily);
+$('dailyBtn').onclick=()=>{ac();startLevel(0,false,today());};
 $('winHome').onclick=showHome;
 addEventListener('resize',()=>{if(TUBES.length)layout(false);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)timerPause();else if(G.active&&G.moves&&!G.won)timerStart();});
@@ -938,7 +1009,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)timerPause(
 loadSave();G.mode=SAVE.mode;SFX.on=!SAVE.muted;G.sym=!!SAVE.sym;
 $('hand').innerHTML=HAND_SVG;
 // 首页背后先摆一关当背景
-startLevel(Math.min(prog().unlocked,60));showHome();
+startLevel(Math.min(prog().unlocked,60),true);showHome();
 window.__dd={G,GEO,pourAngle,levelC,get TUBES(){return TUBES;},startLevel,tap,useUndo,useHint,useTube,restore,showHome};
 })();
 </script>

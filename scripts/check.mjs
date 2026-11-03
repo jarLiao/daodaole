@@ -1,5 +1,6 @@
 // 回归检查：1) 每关标准解逐步回放，每一步都合法且最终倒完；2) 随机乱倒到任意局面后，
 // 「退回到最近能解的那一步」一定存在（开局有解），加一个空瓶后求解器给出的解也逐步合法
+// 3) 每日挑战未来 120 天都能生成、有解、同一天结果一致
 // 用法：node scripts/check.mjs [最大关数=60]
 import { loadEngine } from './engine.mjs';
 
@@ -29,5 +30,16 @@ for (const mode of ['challenge', 'casual'])
       if (pr.ok && !E.isSolved(replay(plus, pr.path) || plus)) { console.log(`${tag}：加瓶后解不合法`); fail++; }
     }
   }
+// 3) 每日挑战：从今天起 120 天，每天都生成得出、标准解回放合法，同一天两次生成完全一样
+const d0 = Math.floor(Date.now() / 864e5); let dailyOk = 0;
+for (let d = d0; d < d0 + 120; d++) {
+  const g = E.generateDaily(d), tag = `每日挑战 ${new Date(d * 864e5).toISOString().slice(0, 10)}`;
+  if (!g) { console.log(`${tag}：生成失败`); fail++; continue; }
+  const r = E.solve(g.s, 80000, 1.5), end = r.ok && replay(g.s, r.path);
+  if (!end || !E.isSolved(end)) { console.log(`${tag}：标准解回放失败`); fail++; continue; }
+  if (E.keyOf(E.generateDaily(d).s) !== E.keyOf(g.s) || JSON.stringify(E.generateDaily(d).s) !== JSON.stringify(g.s)) { console.log(`${tag}：两次生成不一致`); fail++; continue; }
+  dailyOk++;
+}
+console.log(`每日挑战 ${dailyOk}/120 天通过`);
 console.log(`失败 ${fail}；乱倒 ${trials} 次，其中 ${rescued} 次走进死路并成功退回，最慢一次退回计算 ${slow.toFixed(0)} 毫秒`);
 process.exit(fail ? 1 : 0);
